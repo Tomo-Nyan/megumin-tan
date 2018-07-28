@@ -1,0 +1,4 @@
+#bot config
+*.cfg
+#KDevelop files
+*.kdev4
