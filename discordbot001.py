@@ -37,23 +37,23 @@ async def on_message(message):
     if message.content.startswith(prefix):
         cmd = message.content.lstrip(prefix)
         rawArguments = cmd.lstrip(cmd.split(" ")[0])
-        spaceArguments = rawArguments.split(" ")
-        commaArguments = rawArguments.split(",")
+        spaceArguments = rawArguments.split(" ")[1:]
+        commaArguments = rawArguments.split(",")[1:]
         mentions = message.mentions
-        
+
         if cmd.startswith("hello"):
             await message.channel.send("Hello, " + message.author.mention + "!")
             
         if cmd.startswith("coinflip"):
             result = ["Heads","Tails"]
             embed = discord.Embed(color=0x770075)
-            embed.set_author(name=concat((message.author.name," flips a coin!")))
+            embed.title = concat((message.author.name," flips a coin!"))
             embed.description = concat((message.author.name," got ",result[random.randint(0,1)]))
             await message.channel.send(embed=embed)
                 
         if cmd.startswith("dice"):
             embed = discord.Embed(color=0x770075)
-            embed.set_author(name=concat((message.author.name," rolls a die!")))
+            embed.title = concat((message.author.name," rolls a die!"))
             embed.description = concat((message.author.name," rolled ",str(random.randint(1,int(cmd.split(" ")[1])))))
             await message.channel.send(embed=embed)
 
@@ -70,7 +70,7 @@ async def on_message(message):
                 if len(user.name) > maxNameLength:
                     maxNameLength = len(user.name)
             embed = discord.Embed(color=0xff0000)
-            embed.set_author(name="".join(("Real users of guild \"",message.guild.name,"\":")))
+            embed.title = concat(("Real users of guild \"",message.guild.name,"\":"))
             embed.description = "\n".join(names)
             await message.channel.send(embed=embed)
         
@@ -81,7 +81,7 @@ async def on_message(message):
             for user in members:
                 names.append(user.name)
             embed = discord.Embed(color=0xff0000)
-            embed.set_author(name="".join(("Bot users of guild \"",message.guild.name,"\":")))
+            embed.title = concat(("Bot users of guild \"",message.guild.name,"\":"))
             embed.description = "\n".join(names)
             await message.channel.send(embed=embed)
         
@@ -90,12 +90,12 @@ async def on_message(message):
             for guild in client.guilds:
                 guilds1.append(guild.name)
             embed = discord.Embed(color=0xff0000)
-            embed.set_author(name="".join(("All connected servers:")))
+            embed.title = concat(("All connected servers:"))
             embed.description = "\n".join(guilds1)
             await message.channel.send(embed=embed)
             
         if cmd.startswith("xkcd"):
-            arg = cmd.lstrip("xkcd ")
+            arg = spaceArguments[0]
             with urllib.request.urlopen("https://xkcd.com/info.0.json") as req:
                 data = json.load(req)
             intLatestComicID = data["num"]
@@ -118,7 +118,7 @@ async def on_message(message):
                     
         if cmd.startswith("help"):
             embed = discord.Embed(color=0x00e5ff)
-            embed.set_author(name="Help:")
+            embed.title = "Help:"
             for i in range(0,len(commands[1])):
                 embed.add_field(name=commands[1][i],value=commands[0][commands[1][i]],inline=False)
             await message.channel.send(embed=embed)
@@ -133,7 +133,7 @@ async def on_message(message):
                     if q != " " and q != ",":
                         questions.append(q)
             embed = discord.Embed(color=0x00ff7f)
-            embed.set_author(name=concat(("Vote by ",message.author,"!")))
+            embed.title = concat(("Vote by ",message.author,"!"))
             if len(questions) < 27 and len(questions) > 1:
                 for i in range(0,len(questions)-1,1):
                     embed.add_field(name=concat(("Question ",string.ascii_uppercase[i]," (:regional_indicator_",string.ascii_lowercase[i],":)")),value=questions[i],inline=False)
@@ -146,7 +146,7 @@ async def on_message(message):
         if cmd.startswith("quickvote"):
             question = message.content.lstrip(concat((prefix,"quickvote")))
             embed = discord.Embed(color=0x00ff7f)
-            embed.set_author(name=concat(("Quickote by ",message.author,"!")))
+            embed.title = concat(("Quickote by ",message.author,"!"))
             embed.description = question
             msg = await message.channel.send(embed=embed)
             await msg.add_reaction("👍")
@@ -236,7 +236,7 @@ def concat(array,*args):
 
 def chant():
     embed = discord.Embed(color=0xff9000)
-    embed.set_author(name="".join(("Megumin casts explosion!")))
+    embed.title = concat(("Megumin casts explosion!"))
     embed.description = chants[random.randint(0,len(chants)-1)]
     return embed
 
