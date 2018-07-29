@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import json
+
 def getAllRealServerUsers(server):
     nbusers = []
     for user in server.members:
@@ -13,6 +15,10 @@ def getAllBotServerUsers(server):
         if user.bot:
             busers.append(user)
     return busers
+
+def load(file):
+    with open(file,"r") as h:
+        return json.load(h)
 
 def debug(string):
     output = "".join(("[DEBUG] "))

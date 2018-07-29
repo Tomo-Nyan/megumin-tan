@@ -15,14 +15,10 @@ scheduler = apscheduler.schedulers.background.BackgroundScheduler()
 scheduler.add_job(job, 'interval', seconds = 10)
 scheduler.start()
 
-with open("json/bot.cfg","r") as configfile:
-    cfg = json.load(configfile)
-with open("json/help.json","r") as helpfile:
-    commands = json.load(helpfile)
-with open("json/indicators.json","r") as indicatorsfile:
-    regionalindicators = json.load(indicatorsfile)
-with open("json/chants.json","r") as jsonfile:
-    chants = json.load(jsonfile)
+cfg = utils.load("json/bot.cfg")
+commands = utils.load("json/help.json")
+regionalindicators = utils.load("json/indicators.json")
+chants = utils.load("json/chants.json")
 
 #instances
 client = discord.Client()
@@ -40,6 +36,10 @@ async def on_message(message):
 
     if message.content.startswith(prefix):
         cmd = message.content.lstrip(prefix)
+        rawArguments = cmd.lstrip(cmd.split(" ")[0])
+        spaceArguments = rawArguments.split(" ")
+        commaArguments = rawArguments.split(",")
+        mentions = message.mentions
         
         if cmd.startswith("hello"):
             await message.channel.send("Hello, " + message.author.mention + "!")
