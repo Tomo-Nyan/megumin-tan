@@ -124,16 +124,27 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         
         if cmd.startswith("vote"):
-            argfull = message.content.lstrip(concat((prefix,"vote")))
+            argfull = rawArguments
+            print(concat(("[DEBUG] raw = ",argfull)))
             quotes = argfull.count("\"")
+            colons = argfull.count(":")
+            title = concat(("Vote by ",message.author,"!"))
             questions = []
+            if colons == 1:
+                split = argfull.split(":")
+                print(concat(("[DEBUG] split = ",split)))
+                argfull = "".join(split[1:])
+                title = split[0]
+            print(concat(("[DEBUG] raw = ",argfull)))
             if quotes%2 == 0:
                 qsplit = argfull.split("\"")
                 for q in qsplit:
                     if q != " " and q != ",":
                         questions.append(q)
+            if colons == 1:
+                questions = questions[1:]
             embed = discord.Embed(color=0x00ff7f)
-            embed.title = concat(("Vote by ",message.author,"!"))
+            embed.title = title
             if len(questions) < 27 and len(questions) > 1:
                 for i in range(0,len(questions)-1,1):
                     embed.add_field(name=concat(("Question ",string.ascii_uppercase[i]," (:regional_indicator_",string.ascii_lowercase[i],":)")),value=questions[i],inline=False)
@@ -144,7 +155,7 @@ async def on_message(message):
                 await message.channel.send("Enter between 2 and 26 options. Desu.")
                 
         if cmd.startswith("quickvote"):
-            question = message.content.lstrip(concat((prefix,"quickvote")))
+            question = rawArguments
             embed = discord.Embed(color=0x00ff7f)
             embed.title = concat(("Quickote by ",message.author,"!"))
             embed.description = question
