@@ -137,6 +137,9 @@ async def on_message(message):
                 except e as exception:
                     print("".join(("[Error] ",e)))
                     embed = discord.Embed(color=0xff0000,title="Error",description=str(e))
+            if args == "id":
+                id = args.split("")[1]
+                embed = fetchBooruPost(id)
             await message.channel.send(embed=embed)
                 
         if cmd.startswith("help"):
