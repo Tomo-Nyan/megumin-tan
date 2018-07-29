@@ -137,9 +137,12 @@ async def on_message(message):
                 except e as exception:
                     print("".join(("[Error] ",e)))
                     embed = discord.Embed(color=0xff0000,title="Error",description=str(e))
-            if args == "id":
-                id = args.split("")[1]
-                embed = fetchBooruPost(id)
+            if args.startswith("id"):
+                id = args.split(" ")[1]
+                if int(id) <= data[0]["id"] and int(id) > 0:
+                    embed = fetchBooruPost(id)
+                else:
+                    embed = discord.Embed(color=0xff0000,title="Error",description="Invalid post ID")
             await message.channel.send(embed=embed)
                 
         if cmd.startswith("help"):
@@ -289,8 +292,8 @@ def fetchBooruPost(postID):
                 embed.description = ", ".join(post["tags"].split(" "))
         else:
             embed = discord.Embed(color=0xff0000,title="Error",description="No posts were returned")
-    except e2 as exception:
-        embed = discord.Embed(color=0xff0000,title="Error",description=str(e2))
+    except:
+        embed = discord.Embed(color=0xff0000,title="Error",description="Invalid post ID")
     return embed
 client.run(cfg["bottoken"])
 
