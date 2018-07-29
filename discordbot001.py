@@ -36,7 +36,7 @@ async def on_message(message):
 
     if message.content.startswith(prefix):
         cmd = message.content.lstrip(prefix)
-        rawArguments = cmd.lstrip(cmd.split(" ")[0])
+        rawArguments = cmd.lstrip(cmd.split(" ")[0]).lstrip(" ")
         spaceArguments = rawArguments.split(" ")[1:]
         commaArguments = rawArguments.split(",")[1:]
         mentions = message.mentions
@@ -116,6 +116,29 @@ async def on_message(message):
                     e.set_image(url = strComicData["img"])
                     await message.channel.send(embed = e)
                     
+        if cmd.startswith("gelbooru"):
+            args = rawArguments
+            with urllib.request.urlopen("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1") as req:
+                    data = json.load(req)
+            embed = discord.Embed(color=0xff0000,title="Error",description="baaka, you need to specify a subcommand. desu.")
+            if args == "random":
+                post = data[random.randint(0,len(data)-1)]["id"]
+                embed = fetchBooruPost(post)
+            if args == "latest":
+                post = data[0]["id"]
+                embed = fetchBooruPost(post)
+            if args.startswith("tags"):
+                tags = args.split(" ")[1].split(",")
+                try:
+                    with urllib.request.urlopen(concat(("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags=","+".join(tags)))) as req:
+                        data = json.load(req)
+                    post = data[random.randint(0,len(data)-1)]["id"]
+                    embed = fetchBooruPost(post)
+                except e as exception:
+                    print("".join(("[Error] ",e)))
+                    embed = discord.Embed(color=0xff0000,title="Error",description=str(e))
+            await message.channel.send(embed=embed)
+                
         if cmd.startswith("help"):
             embed = discord.Embed(color=0x00e5ff)
             embed.title = "Help:"
@@ -125,17 +148,14 @@ async def on_message(message):
         
         if cmd.startswith("vote"):
             argfull = rawArguments
-            print(concat(("[DEBUG] raw = ",argfull)))
             quotes = argfull.count("\"")
             colons = argfull.count(":")
             title = concat(("Vote by ",message.author,"!"))
             questions = []
             if colons == 1:
                 split = argfull.split(":")
-                print(concat(("[DEBUG] split = ",split)))
                 argfull = "".join(split[1:])
                 title = split[0]
-            print(concat(("[DEBUG] raw = ",argfull)))
             if quotes%2 == 0:
                 qsplit = argfull.split("\"")
                 for q in qsplit:
@@ -251,4 +271,38 @@ def chant():
     embed.description = chants[random.randint(0,len(chants)-1)]
     return embed
 
+def fetchBooruPost(postID):
+    try:
+        with urllib.request.urlopen(concat(("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",postID))) as req:
+            data = json.load(req)
+        if len(data) > 0:
+            post = data[0]
+            embed = discord.Embed(color=0xff28fb)
+            embed.set_image(url = post["file_url"])
+            embed.title = concat(("Post ID:",post["id"]," | Created:",post["created_at"]))
+            if post["source"] != "":
+                embed.description = "\n".join((", ".join(post["tags"].split(" ")),post["source"]))
+            else:
+                embed.description = ", ".join(post["tags"].split(" "))
+        else:
+            embed = discord.Embed(color=0xff0000,title="Error",description="No posts were returned")
+    except e2 as exception:
+        embed = discord.Embed(color=0xff0000,title="Error",description=str(e2))
+    return embed
 client.run(cfg["bottoken"])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
