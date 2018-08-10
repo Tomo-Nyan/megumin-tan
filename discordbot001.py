@@ -37,10 +37,12 @@ async def on_message(message):
     if message.content.startswith(prefix):
         cmd = message.content.lstrip(prefix)
         rawArguments = cmd.lstrip(cmd.split(" ")[0]).lstrip(" ")
-        spaceArguments = rawArguments.split(" ")[1:]
-        commaArguments = rawArguments.split(",")[1:]
+        spaceArguments = rawArguments.split(" ")
+        commaArguments = rawArguments.split(",")
         mentions = message.mentions
 
+        if cmd.startswith("test"):
+            print(dir(r6))
         if cmd.startswith("hello"):
             await message.channel.send("Hello, " + message.author.mention + "!")
             
@@ -134,9 +136,8 @@ async def on_message(message):
                         data = json.load(req)
                     post = data[random.randint(0,len(data)-1)]["id"]
                     embed = fetchBooruPost(post)
-                except e as exception:
-                    print("".join(("[Error] ",e)))
-                    embed = discord.Embed(color=0xff0000,title="Error",description=str(e))
+                except:
+                    embed = discord.Embed(color=0xff0000,title="Error",description="I could not find that. Sorry~!")
             if args.startswith("id"):
                 id = args.split(" ")[1]
                 if int(id) <= data[0]["id"] and int(id) > 0:
@@ -144,7 +145,10 @@ async def on_message(message):
                 else:
                     embed = discord.Embed(color=0xff0000,title="Error",description="Invalid post ID")
             await message.channel.send(embed=embed)
-                
+
+        if cmd.startswith("nhentai"):
+            print("")
+
         if cmd.startswith("help"):
             embed = discord.Embed(color=0x00e5ff)
             embed.title = "Help:"
