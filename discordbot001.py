@@ -3,9 +3,9 @@
 Documentation, License etc.
 @package discordbot001
 '''
-import discord,random,spice_api, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string
+import discord,random,spice_api, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string,io
 import Modules.utilfuncs as utils
-
+import Modules.nhentai as nhentai
 prefix = ">"
 
 def job():
@@ -147,7 +147,16 @@ async def on_message(message):
             await message.channel.send(embed=embed)
 
         if cmd.startswith("nhentai"):
-            print("")
+            args = spaceArguments
+            if args[0] == "latest":
+                await message.channel.send(embed=fetchNHentaiComic(nhentai.getLatest(1)["result"][0]["id"]))
+            elif args[0] == "random":
+                id = random.randint(1,nhentai.getLatest(1)["result"][0]["id"])
+                await message.channel.send(embed=fetchNHentaiComic(id))
+            elif args[0] == "id":
+                if int(args[1]) > 0 and int(args[1]) <= int(nhentai.getLatest(1)["result"][0]["id"]) and args[1].isnumeric:
+                    await message.channel.send(embed=fetchNHentaiComic(args[1]))
+                
 
         if cmd.startswith("help"):
             embed = discord.Embed(color=0x00e5ff)
@@ -299,6 +308,23 @@ def fetchBooruPost(postID):
     except:
         embed = discord.Embed(color=0xff0000,title="Error",description="Invalid post ID")
     return embed
+def fetchNHentaiComic(comicID):
+    comic = nhentai._getGalleryData(comicID)
+    embed = discord.Embed(color=0xff28fb)
+    imageurls = nhentai.getGalleryURLS(comic["id"])
+    if "cover" in imageurls:
+        imageurl = imageurls["cover"]
+    else:
+        imageurl = imageurls[1]
+    embed.set_image(url=imageurl)
+    embed.title = concat((comic["id"]," | ",comic["title"]["english"]))
+    tags = []
+    for tag in comic["tags"]:
+        tags.append(tag["name"])
+    tagsFormatted = concat(("`","`, `".join(tags),"`"))
+    embed.description = "\n".join((tagsFormatted,"".join(("[Link](https://nhentai.net/g/",str(comic["id"]),"/)"))))
+    return embed
+
 client.run(cfg["bottoken"])
 
 
