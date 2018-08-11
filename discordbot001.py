@@ -151,11 +151,19 @@ async def on_message(message):
             if args[0] == "latest":
                 await message.channel.send(embed=fetchNHentaiComic(nhentai.getLatest(1)["result"][0]["id"]))
             elif args[0] == "random":
-                id = random.randint(1,nhentai.getLatest(1)["result"][0]["id"])
+                id = random.randint(1,int(nhentai.getLatest(1)["result"][0]["id"]))
                 await message.channel.send(embed=fetchNHentaiComic(id))
             elif args[0] == "id":
                 if int(args[1]) > 0 and int(args[1]) <= int(nhentai.getLatest(1)["result"][0]["id"]) and args[1].isnumeric:
                     await message.channel.send(embed=fetchNHentaiComic(args[1]))
+            elif args[0] == "tags":
+                tags = rawArguments.split(" ")[1].split(",")
+                e = nhentai.search(tags[1:],1)
+                if e != None:
+                    e = fetchNHentaiComic(e["result"][random.randint(0,len(e)-1)]["id"])
+                    await message.channel.send(embed=e)
+                else:
+                    await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid tag(s)"))
                 
 
         if cmd.startswith("help"):
@@ -312,10 +320,13 @@ def fetchNHentaiComic(comicID):
     comic = nhentai._getGalleryData(comicID)
     embed = discord.Embed(color=0xff28fb)
     imageurls = nhentai.getGalleryURLS(comic["id"])
+    print(imageurls)
     if "cover" in imageurls:
-        imageurl = imageurls["cover"]
+        imageurl = imageurls["thumb"]
+        print("thumb")
     else:
         imageurl = imageurls[1]
+        print("page 1")
     embed.set_image(url=imageurl)
     embed.title = concat((comic["id"]," | ",comic["title"]["english"]))
     tags = []
