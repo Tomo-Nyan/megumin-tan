@@ -3,17 +3,10 @@
 Documentation, License etc.
 @package discordbot001
 '''
-import discord,random,spice_api, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string,io
+import discord,random,spice_api, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string,io,concurrent.futures,time
 import Modules.utilfuncs as utils
 import Modules.nhentai as nhentai
 prefix = ">"
-
-def job():
-    return None
-
-scheduler = apscheduler.schedulers.background.BackgroundScheduler()
-scheduler.add_job(job, 'interval', seconds = 10)
-scheduler.start()
 
 cfg = utils.load("json/bot.cfg")
 commands = utils.load("json/help.json")
@@ -22,6 +15,7 @@ chants = utils.load("json/chants.json")
 
 #instances
 client = discord.Client()
+connection = pymysql.connect(host='localhost',user=cfg["dbUsername"],password=cfg["dbPassword"],db=cfg["dbName"],charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
 
 #Discord Events
 @client.event
@@ -149,9 +143,10 @@ async def on_message(message):
         if cmd.startswith("nhentai"):
             args = spaceArguments
             if args[0] == "latest":
-                await message.channel.send(embed=fetchNHentaiComic(nhentai.getLatest(1)["result"][0]["id"]))
+                await message.channel.send(embed=fetchNHentaiComicFD(nhentai.getLatest(1),0))
             elif args[0] == "random":
-                id = random.randint(1,int(nhentai.getLatest(1)["result"][0]["id"]))
+                data = nhentai.getLatest(1)
+                id = random.randint(1,int(data["result"][0]["id"]))
                 await message.channel.send(embed=fetchNHentaiComic(id))
             elif args[0] == "id":
                 if int(args[1]) > 0 and int(args[1]) <= int(nhentai.getLatest(1)["result"][0]["id"]) and args[1].isnumeric:
@@ -160,7 +155,7 @@ async def on_message(message):
                 tags = rawArguments.split(" ")[1].split(",")
                 e = nhentai.search(tags[1:],1)
                 if e != None:
-                    e = fetchNHentaiComic(e["result"][random.randint(0,len(e)-1)]["id"])
+                    e = fetchNHentaiComicFD(e,random.randint(0,len(e)-1))
                     await message.channel.send(embed=e)
                 else:
                     await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid tag(s)"))
@@ -308,9 +303,11 @@ def fetchBooruPost(postID):
             embed.set_image(url = post["file_url"])
             embed.title = concat(("Post ID:",post["id"]," | Created:",post["created_at"]))
             if post["source"] != "":
-                embed.description = "\n".join((", ".join(post["tags"].split(" ")),post["source"]))
+                embed.description = "\n".join((", ".join(post["tags"].split(" ")),"".join(("[source](",post["source"],")"))))
             else:
                 embed.description = ", ".join(post["tags"].split(" "))
+            if len(embed.description) > 4000:
+                embed.description = "holy fuck. so many fucking tags."
         else:
             embed = discord.Embed(color=0xff0000,title="Error",description="No posts were returned")
     except:
@@ -319,8 +316,26 @@ def fetchBooruPost(postID):
 def fetchNHentaiComic(comicID):
     comic = nhentai._getGalleryData(comicID)
     embed = discord.Embed(color=0xff28fb)
-    imageurls = nhentai.getGalleryURLS(comic["id"])
-    print(imageurls)
+    imageurls = nhentai.getGalleryURLSFID(comic["id"])
+    if "cover" in imageurls:
+        imageurl = imageurls["thumb"]
+        print("thumb")
+    else:
+        imageurl = imageurls[1]
+        print("page 1")
+    embed.set_image(url=imageurl)
+    embed.title = concat((comic["id"]," | ",comic["title"]["english"]))
+    tags = []
+    for tag in comic["tags"]:
+        tags.append(tag["name"])
+    tagsFormatted = concat(("`","`, `".join(tags),"`"))
+    embed.description = "\n".join((tagsFormatted,"".join(("[Link](https://nhentai.net/g/",str(comic["id"]),"/)"))))
+    return embed
+
+def fetchNHentaiComicFD(data,num):
+    comic = data["result"][num]
+    embed = discord.Embed(color=0xff28fb)
+    imageurls = nhentai.getGalleryURLSFD(nhentai.formatResult(data,num))
     if "cover" in imageurls:
         imageurl = imageurls["thumb"]
         print("thumb")
