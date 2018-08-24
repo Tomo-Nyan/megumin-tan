@@ -303,9 +303,9 @@ def fetchBooruPost(postID):
             embed.set_image(url = post["file_url"])
             embed.title = concat(("Post ID:",post["id"]," | Created:",post["created_at"]))
             if post["source"] != "":
-                embed.description = "\n".join((", ".join(post["tags"].split(" ")),"".join(("[source](",post["source"],")"))))
+                embed.description = "\n".join(("".join(("`","`, `".join(post["tags"].split(" ")),"`")),"".join(("[source](",post["source"],")"))))
             else:
-                embed.description = ", ".join(post["tags"].split(" "))
+                embed.description = "".join(("`","`, `".join(post["tags"].split(" ")),"`"))
             if len(embed.description) > 4000:
                 embed.description = "holy fuck. so many fucking tags."
         else:
