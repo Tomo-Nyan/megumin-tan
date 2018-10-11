@@ -25,11 +25,11 @@ async def on_ready():
     print(concat(("Logged in as ",client.user)))
     await client.change_presence(activity=discord.Game(name="with my staff"))
 
-@client.event
-async def on_raw_reaction_add(payload):
-    print("")
-    with connection.cursor() as cursor:
-        cursor.execute(concat(("SELECT ")))
+#@client.event
+#async def on_raw_reaction_add(payload):
+    #print("")
+    #with connection.cursor() as cursor:
+        #cursor.execute(concat(("SELECT ")))
 
 @client.event
 async def on_message(message):
