@@ -3,7 +3,7 @@
 import json,requests
 
 def doGETJSON(url,headers=None):
-    response = requests.get(url,headers).json()
+    return requests.get(url,headers).json()
 
 def getAllRealServerUsers(server):
     nbusers = []
