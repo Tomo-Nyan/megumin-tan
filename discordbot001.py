@@ -6,9 +6,11 @@ Documentation, License etc.
 import discord,random,spice_api, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string,io,concurrent.futures,time
 import Modules.utilfuncs as utils
 import Modules.nhentai as nhentai
+import Modules.steam as steam
 prefix = ">"
 
 cfg = utils.load("json/bot.cfg")
+speech = utils.load("json/speech/ENG_Megumin_Base.speech")
 commands = utils.load("json/help.json")
 regionalindicators = utils.load("json/indicators.json")
 chants = utils.load("json/chants.json")
@@ -24,6 +26,12 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name="with my staff"))
 
 @client.event
+async def on_raw_reaction_add(payload):
+    print("")
+    with connection.cursor() as cursor:
+        cursor.execute(concat(("SELECT ")))
+
+@client.event
 async def on_message(message):
     if message.author == client.user:
         return
@@ -35,8 +43,6 @@ async def on_message(message):
         commaArguments = rawArguments.split(",")
         mentions = message.mentions
 
-        if cmd.startswith("test"):
-            print(dir(r6))
         if cmd.startswith("hello"):
             await message.channel.send("Hello, " + message.author.mention + "!")
             
@@ -92,8 +98,7 @@ async def on_message(message):
             
         if cmd.startswith("xkcd"):
             arg = spaceArguments[0]
-            with urllib.request.urlopen("https://xkcd.com/info.0.json") as req:
-                data = json.load(req)
+            data = utils.doGETJSON("https://xkcd.com/info.0.json")
             intLatestComicID = data["num"]
             boolValid = True
             if arg == "random":
@@ -106,16 +111,14 @@ async def on_message(message):
                 boolValid = False
                 await message.channel.send("".join(("\"",arg,"\" is not a valid xkcd ID, baaka~")))
             if boolValid:
-                with urllib.request.urlopen("".join(("https://xkcd.com/",str(intComicID),"/info.0.json"))) as req:
-                    strComicData = json.load(req)
-                    e = discord.Embed()
-                    e.set_image(url = strComicData["img"])
-                    await message.channel.send(embed = e)
+                strComicData = utils.doGETJSON("".join(("https://xkcd.com/",str(intComicID),"/info.0.json")))
+                e = discord.Embed()
+                e.set_image(url = strComicData["img"])
+                await message.channel.send(embed = e)
                     
         if cmd.startswith("gelbooru"):
             args = rawArguments
-            with urllib.request.urlopen("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1") as req:
-                    data = json.load(req)
+            data = utils.doGETJSON("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1")
             embed = discord.Embed(color=0xff0000,title="Error",description="baaka, you need to specify a subcommand. desu.")
             if args == "random":
                 post = data[random.randint(0,len(data)-1)]["id"]
@@ -126,8 +129,7 @@ async def on_message(message):
             if args.startswith("tags"):
                 tags = args.split(" ")[1].split(",")
                 try:
-                    with urllib.request.urlopen(concat(("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags=","+".join(tags)))) as req:
-                        data = json.load(req)
+                    data = utils.doGETJSON(concat(("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags=","+".join(tags))))
                     post = data[random.randint(0,len(data)-1)]["id"]
                     embed = fetchBooruPost(post)
                 except:
@@ -140,6 +142,7 @@ async def on_message(message):
                     embed = discord.Embed(color=0xff0000,title="Error",description="Invalid post ID")
             await message.channel.send(embed=embed)
 
+#
         if cmd.startswith("nhentai"):
             args = spaceArguments
             if args[0] == "latest":
@@ -153,13 +156,56 @@ async def on_message(message):
                     await message.channel.send(embed=fetchNHentaiComic(args[1]))
             elif args[0] == "tags":
                 tags = rawArguments.split(" ")[1].split(",")
-                e = nhentai.search(tags[1:],1)
+                e = nhentai.search(tags,1)
                 if e != None:
                     e = fetchNHentaiComicFD(e,random.randint(0,len(e)-1))
                     await message.channel.send(embed=e)
                 else:
                     await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid tag(s)"))
-                
+
+        #if cmd.startswith("steam"):
+            #args = spaceArguments
+            #if args[0] == "common":
+                #mentions = message.mentions
+                #users = []
+                #for user in mentions:
+                    #print("")
+            #if args[0] == "add":
+                #print(type(message.channel))
+                #if type(message.channel) == discord.TextChannel or type(message.channel) == discord.GroupChannel:
+                    #await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="You should do this in A DM.\nPeople are bad."))
+                    #return None
+                ##with connection.cursor() as cursor:
+                    ##cursor.execute("")
+                #url = args[1]
+                #id = steam.getID(url)
+                #if id != None:
+                    #user = steam.getUserInfo(id)
+                #else:
+                    #await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid URL"))
+                    #return None
+                #if user != None:
+                    #user = user["response"]["players"][0]
+                    #e = discord.Embed(color=0x444444)
+                    #e.set_author(name="Is this you? (timeout:15s)",icon_url=user["avatar"])
+                    #e.add_field(name=user["personaname"],value=concat(("SteamID = ",user["steamid"])))
+                    #msg = await message.channel.send(embed=e)
+                    #await msg.add_reaction("✅")
+                    #await msg.add_reaction("❎")
+                    #with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                        #future = executor.submit(addSteam,message,msg.id,user["steamid"],15)
+                        
+
+
+
+
+                #games = []
+                #for game in sharedGames:
+                    #games.add(steam.getGameInfo(game)["name"])
+                #e = discord.Embed(color=0x444444,title="Common games:",description="\n".join((games)))
+                #message.channel.send(embed=e)
+        if cmd.startswith("ping"):
+            await message.channel.send(concat((client.latency * 1000,"ms")))
 
         if cmd.startswith("help"):
             embed = discord.Embed(color=0x00e5ff)
@@ -167,6 +213,14 @@ async def on_message(message):
             for i in range(0,len(commands[1])):
                 embed.add_field(name=commands[1][i],value=commands[0][commands[1][i]],inline=False)
             await message.channel.send(embed=embed)
+
+        if cmd.startswith("info"):
+            if len(message.mentions) == 1:
+                victim = message.mentions[0]
+                embed = discord.Embed(color=0x00e5ff)
+                embed.set_author(name="".join(("Info for ",victim.name,":")),icon_url=victim.avatar_url)
+                embed.description = "\n".join((concat(("ID: ",victim.id)),concat(("Name: ",victim.name)),concat(("Nick: ",victim.display_name)),concat(("Creation Date: ",victim.created_at)),concat(("Avatar URL: [url](",victim.avatar_url_as(static_format="png"),")"))))
+                await message.channel.send(embed=embed)
         
         if cmd.startswith("vote"):
             argfull = rawArguments
@@ -195,6 +249,9 @@ async def on_message(message):
                     await msg.add_reaction(regionalindicators[i])
             else:
                 await message.channel.send("Enter between 2 and 26 options. Desu.")
+
+        if cmd.startswith("strawpoll"):
+            print("")
                 
         if cmd.startswith("quickvote"):
             question = rawArguments
@@ -293,10 +350,10 @@ def chant():
     embed.description = chants[random.randint(0,len(chants)-1)]
     return embed
 
+#req = req.read().decode('utf-8')
 def fetchBooruPost(postID):
     try:
-        with urllib.request.urlopen(concat(("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",postID))) as req:
-            data = json.load(req)
+        data = utils.doGETJSON(concat(("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",postID)))
         if len(data) > 0:
             post = data[0]
             embed = discord.Embed(color=0xff28fb)
@@ -315,41 +372,78 @@ def fetchBooruPost(postID):
     return embed
 def fetchNHentaiComic(comicID):
     comic = nhentai._getGalleryData(comicID)
-    embed = discord.Embed(color=0xff28fb)
     imageurls = nhentai.getGalleryURLSFID(comic["id"])
-    if "cover" in imageurls:
-        imageurl = imageurls["thumb"]
-        print("thumb")
-    else:
-        imageurl = imageurls[1]
-        print("page 1")
-    embed.set_image(url=imageurl)
-    embed.title = concat((comic["id"]," | ",comic["title"]["english"]))
-    tags = []
-    for tag in comic["tags"]:
-        tags.append(tag["name"])
-    tagsFormatted = concat(("`","`, `".join(tags),"`"))
-    embed.description = "\n".join((tagsFormatted,"".join(("[Link](https://nhentai.net/g/",str(comic["id"]),"/)"))))
-    return embed
+    return formatNHentaiComic(comic,imageurls)
 
 def fetchNHentaiComicFD(data,num):
     comic = data["result"][num]
-    embed = discord.Embed(color=0xff28fb)
     imageurls = nhentai.getGalleryURLSFD(nhentai.formatResult(data,num))
+    return formatNHentaiComic(comic,imageurls)
+
+def formatNHentaiComic(comic,imageurls):
+    embed = discord.Embed(color=0xff28fb)
     if "cover" in imageurls:
         imageurl = imageurls["thumb"]
-        print("thumb")
     else:
         imageurl = imageurls[1]
-        print("page 1")
     embed.set_image(url=imageurl)
     embed.title = concat((comic["id"]," | ",comic["title"]["english"]))
-    tags = []
+    tags,languages,characters,parodies,artists,groups = [[],[],[],[],[],[]]
     for tag in comic["tags"]:
-        tags.append(tag["name"])
-    tagsFormatted = concat(("`","`, `".join(tags),"`"))
-    embed.description = "\n".join((tagsFormatted,"".join(("[Link](https://nhentai.net/g/",str(comic["id"]),"/)"))))
+        if tag["type"] == "tag":
+            tags.append(tag["name"])
+        elif tag["type"] == "language":
+            languages.append(tag["name"].replace("[","").replace("]","").replace("'",""))
+        elif tag["type"] == "character":
+            characters.append(tag["name"])
+        elif tag["type"] == "parody":
+            parodies.append(tag["name"])
+        elif tag["type"] == "artist":
+            artists.append(tag["name"])
+        elif tag["type"] == "group":
+            groups.append(tag["name"])
+    if len(characters) > 0:
+        embed.description = "\n".join(("Language: ",ilQuoteArray(languages),"Tags: ",ilQuoteArray(tags),"Character(s): ",ilQuoteArray(characters),concat(("[Link](https://nhentai.net/g/",str(comic["id"]),"/)"))))
+    else:
+        embed.description = "\n".join(("Language: ",ilQuoteArray(languages),"Tags: ",ilQuoteArray(tags),concat(("[Link](https://nhentai.net/g/",str(comic["id"]),"/)"))))
+    if len(artists) > 0:
+        if len(groups) > 0:
+            embed.set_footer(text=" | ".join((concat(("Artist(s): ",", ".join((artists)))),concat(("Group(s): ",", ".join((groups)))))))
+        else:
+            embed.set_footer(text=concat(("Artist(s): ",", ".join((artists)))))
+    elif len(groups) > 0:
+        embed.set_footer(text=concat(("Group(s): ",", ".join((groups)))))
     return embed
+
+def ilQuoteArray(input):
+    if len(input) > 1:
+        return concat(("`","`, `".join(input),"`"))
+    elif len(input) == 1:
+        return concat(("`",input,"`"))
+    else:
+        return None
+
+#def addSteam(message,msg,steamid,timeout):
+    #timeout = time.time() + timeout
+    #userid = message.author.id
+    #while True:
+        #print("loop!")
+        #if time.time() >= timeout:
+            #return False
+        #time.sleep(1)
+        #print(reactions)
+        #if len(reactions) > 2:
+            #for reaction in reactions:
+                #if reaction.emoji.name == "negative_squared_cross_mark" and reaction.count == 2:
+                    #return False
+                #if reaction.emoji.name == "white_check_mark" and reaction.count == 2:
+                    #with connection.cursor() as cursor:
+                        #cursor.execute(concat(("INSERT INTO tblSteamUser (steamID) VALUES (",steamid,");")))
+                        #cursor.execute(concat(("INSERT INTO tblSUU (userID,steamID) VALUES (",userid,",",steamid,");")))
+                    #connection.commit()
+                    #print("Added!")
+                    #message.channel.send("Your steam ID has been added!")
+                    #return True
 
 client.run(cfg["bottoken"])
 

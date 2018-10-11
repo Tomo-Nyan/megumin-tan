@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
-import json
+import json,requests
+
+def doGETJSON(url,headers=None):
+    response = requests.get(url,headers).json()
 
 def getAllRealServerUsers(server):
     nbusers = []
