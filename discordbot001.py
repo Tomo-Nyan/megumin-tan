@@ -3,21 +3,21 @@
 Documentation, License etc.
 @package discordbot001
 '''
-import discord,random,spice_api, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string,io,concurrent.futures,time
+import discord,random, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string,io,concurrent.futures,time
 import Modules.utilfuncs as utils
 import Modules.nhentai as nhentai
-import Modules.steam as steam
+#import Modules.steam as steam
 prefix = ">"
 
 cfg = utils.load("json/bot.cfg")
-speech = utils.load("json/speech/ENG_Megumin_Base.speech")
+#speech = utils.load("json/speech/ENG_Megumin_Base.speech")
 commands = utils.load("json/help.json")
 regionalindicators = utils.load("json/indicators.json")
 chants = utils.load("json/chants.json")
 
 #instances
 client = discord.Client()
-connection = pymysql.connect(host='localhost',user=cfg["dbUsername"],password=cfg["dbPassword"],db=cfg["dbName"],charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
+#connection = pymysql.connect(host='localhost',user=cfg["dbUsername"],password=cfg["dbPassword"],db=cfg["dbName"],charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
 
 #Discord Events
 @client.event
