@@ -6,6 +6,7 @@ Documentation, License etc.
 import discord,random, pymysql,os,os.path,json,urllib.request,apscheduler.schedulers.background,string,io,concurrent.futures,time
 import Modules.utilfuncs as utils
 import Modules.nhentai as nhentai
+import Modules.strawpoll as strawpoll
 #import Modules.steam as steam
 prefix = ">"
 
@@ -223,22 +224,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         
         if cmd.startswith("vote"):
-            argfull = rawArguments
-            quotes = argfull.count("\"")
-            colons = argfull.count(":")
-            title = concat(("Vote by ",message.author,"!"))
-            questions = []
-            if colons == 1:
-                split = argfull.split(":")
-                argfull = "".join(split[1:])
-                title = split[0]
-            if quotes%2 == 0:
-                qsplit = argfull.split("\"")
-                for q in qsplit:
-                    if q != " " and q != ",":
-                        questions.append(q)
-            if colons == 1:
-                questions = questions[1:]
+            title,questions = splitTQ(rawArguments)
             embed = discord.Embed(color=0x00ff7f)
             embed.title = title
             if len(questions) < 27 and len(questions) > 1:
@@ -251,7 +237,23 @@ async def on_message(message):
                 await message.channel.send("Enter between 2 and 26 options. Desu.")
 
         if cmd.startswith("strawpoll"):
-            print("")
+            if rawArguments.startswith("create "):
+                title,questions = splitTQ(rawArguments.lstrip("create "))
+                data = strawpoll.createPoll(title,questions)
+            elif rawArguments.startswith("show "):
+                identifier = rawArguments.lstrip("show ")
+                if "https://" in identifier:
+                    data = strawpoll.getPollDetailsFURL(identifier)
+                    title = data["title"]
+                    questions = data["options"]
+                elif identifier.isnumeric:
+                    data = strawpoll.getPollDetailsFID(identifier)
+                    title = data["title"]
+                    questions = data["options"]
+            embed = discord.Embed(color=0xE4D96F)
+            embed.title = title
+            embed.description = ("\n - ".join(["Options:"] + questions)).rstrip("\n - ")
+            await message.channel.send(embed=embed)
                 
         if cmd.startswith("quickvote"):
             question = rawArguments
@@ -444,6 +446,24 @@ def ilQuoteArray(input):
                     #print("Added!")
                     #message.channel.send("Your steam ID has been added!")
                     #return True
+
+def splitTQ(argfull):
+    #argfull = rawArguments
+    quotes = argfull.count("\"")
+    colons = argfull.count(":")
+    questions = []
+    if colons > 0:
+        split = argfull.split(":")
+        argfull = "".join(split[1:])
+        title = split[0]
+    if quotes%2 == 0:
+        qsplit = argfull.split("\"")
+        for q in qsplit:
+            if q != " " and q != ",":
+                questions.append(q)
+    if colons == 1:
+        questions = questions[1:]
+    return [title,questions]
 
 client.run(cfg["bottoken"])
 
