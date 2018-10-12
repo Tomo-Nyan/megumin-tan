@@ -13,4 +13,4 @@ def getPollDetailsFURL(url):
 def createPoll(title,options,multi="false",dupcheck="normal",captcha="true"):
     data = {"title":title,"options":options,"multi":multi,"dupcheck":dupcheck,"captcha":captcha}
     response = requests.post("https://www.strawpoll.me/api/v2/polls",headers={"Content-Type":"application/json"},data=json.dumps(data))
-    return response.content
+    return response.json()

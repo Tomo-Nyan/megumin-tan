@@ -237,22 +237,25 @@ async def on_message(message):
                 await message.channel.send("Enter between 2 and 26 options. Desu.")
 
         if cmd.startswith("strawpoll"):
+            embed = discord.Embed(color=0xE4D96F)
             if rawArguments.startswith("create "):
                 title,questions = splitTQ(rawArguments.lstrip("create "))
                 data = strawpoll.createPoll(title,questions)
+                url = "".join(("https://www.strawpoll.me/",str(data["id"])))
             elif rawArguments.startswith("show "):
                 identifier = rawArguments.lstrip("show ")
                 if "https://" in identifier:
                     data = strawpoll.getPollDetailsFURL(identifier)
                     title = data["title"]
                     questions = data["options"]
+                    url = "".join(("https://www.strawpoll.me/",str(data["id"])))
                 elif identifier.isnumeric:
                     data = strawpoll.getPollDetailsFID(identifier)
                     title = data["title"]
                     questions = data["options"]
-            embed = discord.Embed(color=0xE4D96F)
+                    url = "".join(("https://www.strawpoll.me/",str(data["id"])))
             embed.title = title
-            embed.description = ("\n - ".join(["Options:"] + questions)).rstrip("\n - ")
+            embed.description = "\n".join((("\n - ".join(["Options:"] + questions)).rstrip("\n - "),"".join(("[[url]](",url,")"))))
             await message.channel.send(embed=embed)
                 
         if cmd.startswith("quickvote"):
