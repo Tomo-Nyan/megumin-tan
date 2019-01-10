@@ -15,6 +15,7 @@ cfg = utils.load("json/bot.cfg")
 commands = utils.load("json/help.json")
 regionalindicators = utils.load("json/indicators.json")
 chants = utils.load("json/chants.json")
+reactions = utils.load("json/imageSource.json")
 
 #instances
 client = discord.Client()
@@ -267,25 +268,32 @@ async def on_message(message):
             await msg.add_reaction("👍")
             await msg.add_reaction("👎")
 
-        if cmd.startswith("stickerlist"):
-            path1 = os.path.abspath(cfg["absstickerpath"])
-            files = []
-            for f in os.listdir(path1):
-                if os.path.exists:
-                    files.append(f)
-            await message.channel.send(", ".join(files))
+        #if cmd.startswith("stickerlist"):
+        #    path1 = os.path.abspath(cfg["absstickerpath"])
+        #    files = []
+        #    for f in os.listdir(path1):
+        #        if os.path.exists:
+        #            files.append(f)
+        #    await message.channel.send(", ".join(files))
 
-        if cmd.startswith("sticker") and not cmd.startswith("stickerlist"):
-            if len(cmd) > 8:
-                stickername = concat((cfg["absstickerpath"],cmd.split(" ")[1],".png"))
-                try:
-                    await message.channel.send(file=discord.File(stickername))
-                except FileNotFoundError:
-                    await message.channel.send("That isn't a sticker yet, baaka~")
-                    print("".join(("Could not find sticker \"",stickername,"\"!")))
-            else:
-                await message.channel.send("Enter an actual sticker name or I'll explode you!")
-                
+        #if cmd.startswith("sticker") and not cmd.startswith("stickerlist"):
+        #    if len(cmd) > 8:
+        #        stickername = concat((cfg["absstickerpath"],cmd.split(" ")[1],".png"))
+        #        try:
+        #            await message.channel.send(file=discord.File(stickername))
+        #        except FileNotFoundError:
+        #            await message.channel.send("That isn't a sticker yet, baaka~")
+        #            print("".join(("Could not find sticker \"",stickername,"\"!")))
+        #    else:
+        #        await message.channel.send("Enter an actual sticker name or I'll explode you!")
+		
+		#reactions
+		if cmd.startswith("cry"):
+			e = discord.Embed(color=0x7af442)
+			e.title = "\*cries*"
+			e.imageSource = reactions["cry"][random.randint(0,len(reactions["cry"]-1)]
+			await message.channel.send(e)
+		
         if cmd.startswith("kick"):
             if message.channel.permissions_for(message.author).kick_members:
                 victims = message.mentions
