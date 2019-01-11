@@ -292,6 +292,7 @@ async def on_message(message):
 			e = discord.Embed(color=0x7af442)
 			e.title = "\*cries*"
 			url = reactions["cry"][random.randint(0,len(reactions["cry"])-1)]
+			print(url)
 			e.set_image(url)
 			await message.channel.send(e)
 		
