@@ -291,7 +291,8 @@ async def on_message(message):
 		if cmd.startswith("cry"):
 			e = discord.Embed(color=0x7af442)
 			e.title = "\*cries*"
-			e.set_image(reactions["cry"][random.randint(0,len(reactions["cry"])-1)])
+			url = reactions["cry"][random.randint(0,len(reactions["cry"])-1)]
+			e.set_image(url)
 			await message.channel.send(e)
 		
 		if cmd.startswith("kick"):
