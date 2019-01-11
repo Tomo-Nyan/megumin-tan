@@ -293,7 +293,7 @@ async def on_message(message):
 			e.title = "\*cries*"
 			url = reactions["cry"][random.randint(0,len(reactions["cry"])-1)]
 			print(url)
-			e.set_image(url=str(url))
+			e.set_image(url)
 			await message.channel.send(e)
 		
 		if cmd.startswith("kick"):
