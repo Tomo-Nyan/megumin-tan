@@ -291,10 +291,8 @@ async def on_message(message):
 		if cmd.startswith("cry"):
 			e = discord.Embed(color=0x7af442)
 			e.title = "\*cries*"
-			url = reactions["cry"][random.randint(0,len(reactions["cry"])-1)]
-			print(url)
-			e.set_image(url)
-			await message.channel.send(e)
+			e.set_image(url=reactions["cry"][random.randint(0,len(reactions["cry"])-1)])
+			await message.channel.send(embed=e)
 		
 		if cmd.startswith("kick"):
 			if message.channel.permissions_for(message.author).kick_members:
