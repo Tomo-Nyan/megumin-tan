@@ -290,8 +290,27 @@ async def on_message(message):
 		#reactions
 		if cmd.startswith("cry"):
 			e = discord.Embed(color=0x7af442)
-			e.title = "\*cries*"
+			e.title = "*cries*"
 			e.set_image(url=reactions["cry"][random.randint(0,len(reactions["cry"])-1)])
+			await message.channel.send(embed=e)
+		if cmd.startswith("smug"):
+			e = discord.Embed(color=0x7af442)
+			e.title = "*smug*"
+			e.set_image(url=reactions["smug"][random.randint(0,len(reactions["smug"])-1)])
+			await message.channel.send(embed=e)
+		if cmd.startswith("dance"):
+			e = discord.Embed(color=0x7af442)
+			e.title = "*dances*"
+			e.set_image(url=reactions["dance"][random.randint(0,len(reactions["dance"])-1)])
+			await message.channel.send(embed=e)
+		if cmd.startswith("argue"):
+			e = discord.Embed(color=0x7af442)
+			e.title = "oi"
+			e.set_image(url=reactions["argue"][random.randint(0,len(reactions["argue"])-1)])
+			await message.channel.send(embed=e)
+		if cmd.startswith("aghast"):
+			e = discord.Embed(color=0x7af442)
+			e.set_image(url=reactions["aghast"][random.randint(0,len(reactions["aghast"])-1)])
 			await message.channel.send(embed=e)
 		
 		if cmd.startswith("kick"):
