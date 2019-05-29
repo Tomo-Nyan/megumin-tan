@@ -145,28 +145,28 @@ async def on_message(message):
 			await message.channel.send(embed=embed)
 
 #
-		#if cmd.startswith("nhentai"):
-		#	args = spaceArguments
-		#	if args[0] == "latest":
-		#		await message.channel.send(embed=fetchNHentaiComicFD(nhentai.getLatest(1),0))
-		#	elif args[0] == "random":
-		#		data = nhentai.getLatest(1)
-		#		id = random.randint(1,int(data["result"][0]["id"]))
-		#		await message.channel.send(embed=fetchNHentaiComic(id))
-		#	elif args[0] == "id":
-		#		if int(args[1]) > 0 and int(args[1]) <= int(nhentai.getLatest(1)["result"][0]["id"]) and args[1].isnumeric:
-		#			await message.channel.send(embed=fetchNHentaiComic(args[1]))
-		#	elif args[0] == "tags":
-		#		tags = rawArguments.split(" ")[1].split(",")
-		#		e = nhentai.search(tags,1)
-		#		if e != None:
-		#			e = fetchNHentaiComicFD(e,random.randint(0,len(e)-1))
-		#			await message.channel.send(embed=e)
-		#		else:
-		#			await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid tag(s)"))
-		
 		if cmd.startswith("nhentai"):
-			await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="maou is a bloody egg."))
+			args = spaceArguments
+			if args[0] == "latest":
+				await message.channel.send(embed=fetchNHentaiComicFD(nhentai.getLatest(1),0))
+			elif args[0] == "random":
+				data = nhentai.getLatest(1)
+				id = random.randint(1,int(data["result"][0]["id"]))
+				await message.channel.send(embed=fetchNHentaiComic(id))
+			elif args[0] == "id":
+				if int(args[1]) > 0 and int(args[1]) <= int(nhentai.getLatest(1)["result"][0]["id"]) and args[1].isnumeric:
+					await message.channel.send(embed=fetchNHentaiComic(args[1]))
+			elif args[0] == "tags":
+				tags = rawArguments.split(" ")[1].split(",")
+				e = nhentai.search(tags,1)
+				if e != None:
+					e = fetchNHentaiComicFD(e,random.randint(0,len(e)-1))
+					await message.channel.send(embed=e)
+				else:
+					await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid tag(s)"))
+		
+		#if cmd.startswith("nhentai"):
+		#	await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="maou is a bloody egg."))
 		
 		#if cmd.startswith("steam"):
 			#args = spaceArguments
