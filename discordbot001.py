@@ -118,15 +118,15 @@ async def on_message(message):
 				e.set_image(url = strComicData["img"])
 				await message.channel.send(embed = e)
 				
-                if cmd.startswith("reddit"):
-                    data = reddit.fetchRedditPost(rawArguments)
-                    embed=discord.Embed(color=0xff0000,title="Error",description="That's not a valid subreddit, baaka~")
-                    if data["successful"]:
-                        embed = discord.Embed(color=0xff6e00,title=data["title"],description=data["description"])
-                        embed.set_footer(text=data["footer"])
-                        if data["type"] == "image":
-                            embed.set_image(url=data["imgurl"])
-                    await message.channel.send(embed=embed)
+		if cmd.startswith("reddit"):
+			data = reddit.fetchRedditPost(rawArguments)
+			embed=discord.Embed(color=0xff0000,title="Error",description="That's not a valid subreddit, baaka~")
+			if data["successful"]:
+				embed = discord.Embed(color=0xff6e00,title=data["title"],description=data["description"])
+				embed.set_footer(text=data["footer"])
+				if data["type"] == "image":
+					embed.set_image(url=data["imgurl"])
+			await message.channel.send(embed=embed)
 
 		if cmd.startswith("gelbooru"):
 			args = rawArguments
