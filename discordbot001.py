@@ -7,6 +7,7 @@ import discord,random, pymysql,os,os.path,json,urllib.request,apscheduler.schedu
 import Modules.utilfuncs as utils
 import Modules.nhentai as nhentai
 import Modules.strawpoll as strawpoll
+import Modules.reddit as reddit
 #import Modules.steam as steam
 prefix = ">"
 
