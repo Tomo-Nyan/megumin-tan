@@ -289,10 +289,20 @@ async def on_message(message):
                 id = rawArguments.split(" ")[1].lower()
                 if id.startswith("a/"):
                     data = mal.fetchAnime(id.lstrip("a/"))
+                elif id.startswith("m/"):
+                    data = mal.fetchManga(id.lstrip("m/"))
+                else:
+                    data = mal.fetchAnime(id)
+                    if data.requestStatus != 1:
+                        data = mal.fetchManga(id)
+                if data.requestStatus == 1:
+                    letter = 'A'
+                    if data.contentType == "manga":
+                        letter = 'M'
                     if data.titleEnglish and data.malType:
-                        embed.title = f'[A/{data.malID}] [{data.malType}] [{data.titleEnglish}]'
+                        embed.title = f'[{letter}/{data.malID}] [{data.malType}] [{data.titleEnglish}]'
                     elif data.titleEnglish:
-                        embed.title = f'[A/{data.malID}] [{data.titleEnglish}]'
+                        embed.title = f'[{letter}/{data.malID}] [{data.titleEnglish}]'
 
                     if data.synopsis:
                         if len(data.synopsis) > 600:
@@ -305,10 +315,16 @@ async def on_message(message):
                             embed.set_thumbnail(url=data.thumbURL)
 
                     if data.genres:
-                        embed.add_field(name="Genre(s)",value=''.join(('`','`,`'.join(data.genres),'`')),inline=False)
+                        name = 'Genre'
+                        if len(data.genres) > 0:
+                            name = 'Genres'
+                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.genres),'`')),inline=False)
 
                     if data.number:
-                        embed.add_field(name="Episodes",value=data.number,inline=True)
+                        if data.contentType == "anime":
+                            embed.add_field(name="Episodes",value=data.number,inline=True)
+                        elif data.contentType == "manga":
+                            embed.add_field(name="Chapters",value=data.number,inline=True)
 
                     if data.airing != None:
                         if data.airing and data.status:
@@ -316,19 +332,45 @@ async def on_message(message):
                         elif data.airing:
                             embed.add_field(name="Airing Status",value="Unknown",inline=True)
                         elif data.airing == False:
-                            if data.airingStarted:
-                                if data.airingEnded:
-                                    embed.add_field(name="Airing Status",value=f'Aired {data.airingStarted} to {data.airingEnded}',inline=True)
+                            if data.started:
+                                if data.ended:
+                                    embed.add_field(name="Airing Status",value=f'Aired {data.started} to {data.ended}',inline=True)
                                 else:
-                                    embed.add_field(name="Airing Status",value=f'Started Airing {data.airingStarted}',inline=True)
+                                    embed.add_field(name="Airing Status",value=f'Started Airing {data.started}',inline=True)
                             else:
                                 embed.add_field(name="Airing Status",value=data.status,inline=True)
+
+                    if data.publishing != None:
+                        if data.publishing and data.status:
+                            embed.add_field(name="Publishing Status",value=data.status,inline=True)
+                        elif data.publishing:
+                            embed.add_field(name="Publishing Status",value="Unknown",inline=True)
+                        elif data.publishing == False:
+                            if data.started:
+                                if data.ended:
+                                    embed.add_field(name="Publishing Status",value=f'Published {data.started} to {data.ended}',inline=True)
+                                else:
+                                    embed.add_field(name="Publishing Status",value=f'Publishing Started {data.started}',inline=True)
+                            else:
+                                embed.add_field(name="Publishing Status",value=data.status,inline=True)
+
                     if data.origin:
                         embed.add_field(name="Origin",value=data.origin,inline=True)
                     if data.licensors:
-                        embed.add_field(name="Licensor(s)",value=''.join(('`','`,`'.join(data.licensors),'`')),inline=True)
+                        name = 'Licensor'
+                        if len(data.studios) > 1:
+                            name = 'Licensors'
+                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.licensors),'`')),inline=True)
                     if data.studios:
-                        embed.add_field(name="Studio(s)",value=''.join(('`','`,`'.join(data.studios),'`')),inline=True)
+                        name = 'Studio'
+                        if len(data.studios) > 1:
+                            name = 'Studios'
+                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.studios),'`')),inline=True)
+                    if data.authors:
+                        name = 'Author'
+                        if len(data.authors) > 1:
+                            name = 'Authors'
+                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
 
             await message.channel.send(embed=embed)
 
