@@ -371,6 +371,16 @@ async def on_message(message):
                         if len(data.authors) > 1:
                             name = 'Authors'
                         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
+            else: #search
+                rawString = ' ' + rawArguments
+                searchType = 'anime'
+                if 'm/' in rawString.lower() or ' m ' in rawString.lower():
+                    searchType = 'manga'
+                    rawString.replace('m/','')
+                    rawString.replace(' m ','')
+                data = mal.search(rawString,searchType)
+                if data[0] == 1:
+                    #
 
             await message.channel.send(embed=embed)
 

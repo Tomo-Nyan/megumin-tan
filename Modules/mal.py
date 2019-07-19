@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 import requests,datetime
-lastRequest = datetime.datetime.utcnow().timestamp() #this is for rate limiting.
-api = 'https://api.jikan.moe/v3/'
+from time import sleep
+api = 'https://api.jikan.moe/v3'
+lastRequest = datetime.datetime.utcnow().timestamp()
 
 class malResult:
     def __init__(self,type,id):
@@ -27,8 +28,21 @@ class malResult:
         self.publishing = None
         self.authors = None #array
 
+def RLRequest(url):
+    global lastRequest
+    while lastRequest == 0:
+        sleep(0.5)
+    time = datetime.datetime.utcnow().timestamp()
+    lr = lastRequest + 2
+    lastRequest = 0
+    if time < lr:
+        sleep(lr - time)
+    response = requests.get(url,headers={"User-Agent":"Megumin-Tan/Discord"})
+    lastRequest = datetime.datetime.utcnow().timestamp()
+    return response
+
 def fetchAnime(id):
-    response = requests.get(f'{api}/anime/{id}/')
+    response = RLRequest(f'{api}/anime/{id}/')
     result = malResult('anime',id)
     if response.status_code == 200:#all good
         data = response.json()
@@ -56,10 +70,31 @@ def fetchAnime(id):
         if "source" in data:
             result.origin = data["source"]
         #wow this is fucking messy.
-        return result
+    else:
+        result.requestStatus = _responseParse(response)
+    return result
+
+def _responseParse(response):
+    if response.status_code == 400: #invalid request
+        print("[ERROR][mal.py] 400 Invalid Request")
+        return 3
+    elif response.status_code == 404: #mal not found
+        print("[ERROR][mal.py] 404 Not Found")
+        return 4
+    elif response.status_code == 405: #invalid request
+        print("[ERROR][mal.py] 405 Invalid Request")
+        return 5
+    elif response.status_code == 429: #rate limited
+        print("[ERROR][mal.py] 429 Rate Limited")
+        return 6
+    elif response.status_code == 500: #cunt's fucked
+        print("[ERROR][mal.py] 500 Internal Server Error")
+        return 7
+    else:
+        return 0
 
 def fetchManga(id):
-    response = requests.get(f'{api}/manga/{id}/')
+    response = RLRequest(f'{api}/manga/{id}/')
     result = malResult('manga',id)
     if response.status_code == 200:
         data = response.json()
@@ -77,7 +112,9 @@ def fetchManga(id):
             for author in data["authors"]:
                 authors.append(author["name"])
             result.authors = authors
-        return result
+    else:
+        result.requestStatus = _responseParse(response)
+    return result
 
 def _fetchAMShared(data,initialResult): #this sets the properties that both anime and manga pages use, to save space.
     result = initialResult
@@ -104,4 +141,19 @@ def _fetchAMShared(data,initialResult): #this sets the properties that both anim
         for genre in data["genres"]:
             genres.append(genre["name"])
         result.genres = genres
+    return result
+
+def search(query,type):
+    query = requests.utils.quote(query,safe='')
+    response = RLRequest(f'{api}/search/{type}?q={query}&page=1&limit=8')
+    result = []
+    if response.status_code == 200:
+        data = response.json()
+        if data["results"]:
+            if len(data["results"]) > 0:
+                for searchResult in data["results"]:
+                    result.append([searchResult['title'],searchResult['type'],searchResult['image_url']])
+        result = [1,result]
+    else:
+        result = _responseParse(response)
     return result
