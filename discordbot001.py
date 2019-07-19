@@ -21,6 +21,7 @@ reactions = utils.load("json/imageSource.json")
 
 #instances
 client = discord.Client()
+menus = {}
 #connection = pymysql.connect(host='localhost',user=cfg["dbUsername"],password=cfg["dbPassword"],db=cfg["dbName"],charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
 
 #Discord Events
@@ -371,6 +372,7 @@ async def on_message(message):
                         if len(data.authors) > 1:
                             name = 'Authors'
                         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
+                    await message.channel.send(embed=embed)
             else: #search
                 rawString = ' ' + rawArguments
                 searchType = 'anime'
@@ -381,9 +383,20 @@ async def on_message(message):
                 data = mal.search(rawString,searchType)
                 if data[0] == 1:
                     #
+                    if len(data[1]) > 1:
+                        desc = ''
+                        ref = {'user': message.author.id}
+                        for i in range(0,len(data[1])):
+                            result = data[1][i]
+                            desc = f'{desc}{regionalindicators[i]} [{result[1]}][{result[0]}]\n'
+                            ref[regionalindicators[i]] = result[3]
+                        embed.description = desc
+                        sm = await message.channel.send(embed=embed)
+                        for i in rand(0,len(data[1])):
+                            sm.add_reaction(regionalindicators[i])
+                        menus[sm.id] = ref
 
             await message.channel.send(embed=embed)
-
         #if cmd.startswith("stickerlist"):
         #    path1 = os.path.abspath(cfg["absstickerpath"])
         #    files = []
@@ -482,6 +495,17 @@ async def on_member_unban(guild,user):
     for channel in guild.text_channels:
         if "general" in channel.name:
             await channel.send(concat((user.name," has been unbanned!")))
+
+@client.event
+async def on_raw_reaction_add(payload):
+    idMessage = payload.message_id
+    idUser = payload.user_id
+    emoji = payload.emoji
+    if idUser == menus[idMessage]['user']:
+        #
+        if emoji in menus[idmessage]:
+            #
+            print(emoji)
 
 def concat(array,*args):
     if len(args) < 1:

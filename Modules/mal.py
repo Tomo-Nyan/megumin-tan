@@ -145,14 +145,14 @@ def _fetchAMShared(data,initialResult): #this sets the properties that both anim
 
 def search(query,type):
     query = requests.utils.quote(query,safe='')
-    response = RLRequest(f'{api}/search/{type}?q={query}&page=1&limit=8')
+    response = RLRequest(f'{api}/search/{type}?q={query}&page=1&limit=4')
     result = []
     if response.status_code == 200:
         data = response.json()
         if data["results"]:
             if len(data["results"]) > 0:
                 for searchResult in data["results"]:
-                    result.append([searchResult['title'],searchResult['type'],searchResult['image_url']])
+                    result.append([searchResult['title'],searchResult['type'],searchResult['image_url'],searchResult['mal_id']])
         result = [1,result]
     else:
         result = _responseParse(response)
