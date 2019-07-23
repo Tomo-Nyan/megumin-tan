@@ -20,13 +20,13 @@ class malResult:
         self.started = None
         self.ended = None
         self.synopsis = None
-        self.genres = None #this will be an array
+        self.genres = None
         self.broadcast = None
-        self.licensors = None #array
+        self.licensors = None
         self.studios = None
         self.origin = None
         self.publishing = None
-        self.authors = None #array
+        self.authors = None
 
 def RLRequest(url):
     global lastRequest
@@ -52,9 +52,11 @@ def fetchAnime(id):
             result.airing = data["airing"]
         if "aired" in data:
             if "from" in data["aired"]:
-                result.started = data["aired"]["from"].split("T")[0]
+                if data["aired"]["from"]:
+                    result.started = data["aired"]["from"].split("T")[0]
             if "to" in data["aired"]:
-                result.ended = data["aired"]["to"].split("T")[0]
+                if data["aired"]["to"]:
+                    result.ended = data["aired"]["to"].split("T")[0]
         if "broadcast" in data:
             result.broadcast = data["broadcast"]
         if "licensors" in data:
@@ -104,9 +106,11 @@ def fetchManga(id):
             result.publishing = data["publishing"]
         if "published" in data:
             if "from" in data["published"]:
-                result.started = data["published"]["from"]
+                if data["published"]["from"]:
+                    result.started = data["published"]["from"].split("T")[0]
             if "to" in data["published"]:
-                result.ended = data["published"]["to"]
+                if data["published"]["to"]:
+                    result.ended = data["published"]["to"].split("T")[0]
         if "authors" in data:
             authors = []
             for author in data["authors"]:

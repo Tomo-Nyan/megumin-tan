@@ -50,14 +50,14 @@ async def on_message(message):
 
         if cmd.startswith("hello"):
             await message.channel.send("Hello, " + message.author.mention + "!")
-            
+
         if cmd.startswith("coinflip"):
             result = ["Heads","Tails"]
             embed = discord.Embed(color=0x770075)
             embed.title = concat((message.author.name," flips a coin!"))
             embed.description = concat((message.author.name," got ",result[random.randint(0,1)]))
             await message.channel.send(embed=embed)
-                
+
         if cmd.startswith("dice"):
             embed = discord.Embed(color=0x770075)
             embed.title = concat((message.author.name," rolls a die!"))
@@ -66,7 +66,7 @@ async def on_message(message):
 
         if cmd.startswith("chant"):
             await message.channel.send(embed=chant())
-        
+
         if cmd.startswith("userlist"):
             members = []
             names = []
@@ -80,7 +80,7 @@ async def on_message(message):
             embed.title = concat(("Real users of guild \"",message.guild.name,"\":"))
             embed.description = "\n".join(names)
             await message.channel.send(embed=embed)
-        
+
         if cmd.startswith("botlist"):
             members = []
             names = []
@@ -91,7 +91,7 @@ async def on_message(message):
             embed.title = concat(("Bot users of guild \"",message.guild.name,"\":"))
             embed.description = "\n".join(names)
             await message.channel.send(embed=embed)
-        
+
         if cmd.startswith("serverlist"):
             guilds1 = []
             for guild in client.guilds:
@@ -100,7 +100,7 @@ async def on_message(message):
             embed.title = concat(("All connected servers:"))
             embed.description = "\n".join(guilds1)
             await message.channel.send(embed=embed)
-            
+
         if cmd.startswith("xkcd"):
             arg = spaceArguments[0]
             data = utils.doGETJSON("https://xkcd.com/info.0.json")
@@ -120,7 +120,7 @@ async def on_message(message):
                 e = discord.Embed()
                 e.set_image(url = strComicData["img"])
                 await message.channel.send(embed = e)
-                
+
         if cmd.startswith("reddit"):
             data = reddit.fetchRedditPost(rawArguments)
             embed=discord.Embed(color=0xff0000,title="Error",description="That's not a valid subreddit, baaka~")
@@ -177,51 +177,7 @@ async def on_message(message):
                     await message.channel.send(embed=e)
                 else:
                     await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid tag(s)"))
-        
-        #if cmd.startswith("nhentai"):
-        #   await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="maou is a bloody egg."))
-        
-        #if cmd.startswith("steam"):
-            #args = spaceArguments
-            #if args[0] == "common":
-                #mentions = message.mentions
-                #users = []
-                #for user in mentions:
-                    #print("")
-            #if args[0] == "add":
-                #print(type(message.channel))
-                #if type(message.channel) == discord.TextChannel or type(message.channel) == discord.GroupChannel:
-                    #await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="You should do this in A DM.\nPeople are bad."))
-                    #return None
-                ##with connection.cursor() as cursor:
-                    ##cursor.execute("")
-                #url = args[1]
-                #id = steam.getID(url)
-                #if id != None:
-                    #user = steam.getUserInfo(id)
-                #else:
-                    #await message.channel.send(embed=discord.Embed(color=0xff0000,title="Error",description="Invalid URL"))
-                    #return None
-                #if user != None:
-                    #user = user["response"]["players"][0]
-                    #e = discord.Embed(color=0x444444)
-                    #e.set_author(name="Is this you? (timeout:15s)",icon_url=user["avatar"])
-                    #e.add_field(name=user["personaname"],value=concat(("SteamID = ",user["steamid"])))
-                    #msg = await message.channel.send(embed=e)
-                    #await msg.add_reaction("✅")
-                    #await msg.add_reaction("❎")
-                    #with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                        #future = executor.submit(addSteam,message,msg.id,user["steamid"],15)
-                        
 
-
-
-
-                #games = []
-                #for game in sharedGames:
-                    #games.add(steam.getGameInfo(game)["name"])
-                #e = discord.Embed(color=0x444444,title="Common games:",description="\n".join((games)))
-                #message.channel.send(embed=e)
         if cmd.startswith("ping"):
             await message.channel.send(concat((client.latency * 1000,"ms")))
 
@@ -239,7 +195,7 @@ async def on_message(message):
                 embed.set_author(name="".join(("Info for ",victim.name,":")),icon_url=victim.avatar_url)
                 embed.description = "\n".join((concat(("ID: ",victim.id)),concat(("Name: ",victim.name)),concat(("Nick: ",victim.display_name)),concat(("Creation Date: ",victim.created_at)),concat(("Avatar URL: [url](",victim.avatar_url_as(static_format="png"),")"))))
                 await message.channel.send(embed=embed)
-        
+
         if cmd.startswith("vote"):
             title,questions = splitTQ(rawArguments)
             embed = discord.Embed(color=0x00ff7f)
@@ -274,7 +230,7 @@ async def on_message(message):
             embed.title = title
             embed.description = "\n".join((("\n - ".join(["Options:"] + questions)).rstrip("\n - "),"".join(("[[url]](",url,")"))))
             await message.channel.send(embed=embed)
-                
+
         if cmd.startswith("quickvote"):
             question = rawArguments
             embed = discord.Embed(color=0x00ff7f)
@@ -283,139 +239,38 @@ async def on_message(message):
             msg = await message.channel.send(embed=embed)
             await msg.add_reaction("👍")
             await msg.add_reaction("👎")
+
         if cmd.startswith("mal"):
             subcommand = rawArguments.split(" ")[0]
             embed = discord.Embed(color=0x2e51a2)
             if subcommand == "id":
                 id = rawArguments.split(" ")[1].lower()
-                if id.startswith("a/"):
-                    data = mal.fetchAnime(id.lstrip("a/"))
-                elif id.startswith("m/"):
-                    data = mal.fetchManga(id.lstrip("m/"))
-                else:
-                    data = mal.fetchAnime(id)
-                    if data.requestStatus != 1:
-                        data = mal.fetchManga(id)
-                if data.requestStatus == 1:
-                    letter = 'A'
-                    if data.contentType == "manga":
-                        letter = 'M'
-                    if data.titleEnglish and data.malType:
-                        embed.title = f'[{letter}/{data.malID}] [{data.malType}] [{data.titleEnglish}]'
-                    elif data.titleEnglish:
-                        embed.title = f'[{letter}/{data.malID}] [{data.titleEnglish}]'
-
-                    if data.synopsis:
-                        if len(data.synopsis) > 600:
-                            short = data.synopsis[0:599]
-                            embed.description = f'[[url]]({data.pageURL})\n```\n{short}...\n```'
-                        else:
-                            embed.description = f'[[url]]({data.pageURL})\n```\n{data.synopsis}\n```'
-
-                    if data.thumbURL:
-                            embed.set_thumbnail(url=data.thumbURL)
-
-                    if data.genres:
-                        name = 'Genre'
-                        if len(data.genres) > 0:
-                            name = 'Genres'
-                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.genres),'`')),inline=False)
-
-                    if data.number:
-                        if data.contentType == "anime":
-                            embed.add_field(name="Episodes",value=data.number,inline=True)
-                        elif data.contentType == "manga":
-                            embed.add_field(name="Chapters",value=data.number,inline=True)
-
-                    if data.airing != None:
-                        if data.airing and data.status:
-                            embed.add_field(name="Airing Status",value=data.status,inline=True)
-                        elif data.airing:
-                            embed.add_field(name="Airing Status",value="Unknown",inline=True)
-                        elif data.airing == False:
-                            if data.started:
-                                if data.ended:
-                                    embed.add_field(name="Airing Status",value=f'Aired {data.started} to {data.ended}',inline=True)
-                                else:
-                                    embed.add_field(name="Airing Status",value=f'Started Airing {data.started}',inline=True)
-                            else:
-                                embed.add_field(name="Airing Status",value=data.status,inline=True)
-
-                    if data.publishing != None:
-                        if data.publishing and data.status:
-                            embed.add_field(name="Publishing Status",value=data.status,inline=True)
-                        elif data.publishing:
-                            embed.add_field(name="Publishing Status",value="Unknown",inline=True)
-                        elif data.publishing == False:
-                            if data.started:
-                                if data.ended:
-                                    embed.add_field(name="Publishing Status",value=f'Published {data.started} to {data.ended}',inline=True)
-                                else:
-                                    embed.add_field(name="Publishing Status",value=f'Publishing Started {data.started}',inline=True)
-                            else:
-                                embed.add_field(name="Publishing Status",value=data.status,inline=True)
-
-                    if data.origin:
-                        embed.add_field(name="Origin",value=data.origin,inline=True)
-                    if data.licensors:
-                        name = 'Licensor'
-                        if len(data.studios) > 1:
-                            name = 'Licensors'
-                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.licensors),'`')),inline=True)
-                    if data.studios:
-                        name = 'Studio'
-                        if len(data.studios) > 1:
-                            name = 'Studios'
-                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.studios),'`')),inline=True)
-                    if data.authors:
-                        name = 'Author'
-                        if len(data.authors) > 1:
-                            name = 'Authors'
-                        embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
-                    await message.channel.send(embed=embed)
+                embed = displayMA(id,embed)
+                await message.channel.send(embed=embed)
             else: #search
                 rawString = ' ' + rawArguments
                 searchType = 'anime'
+                searchTypeLetter = 'a'
                 if 'm/' in rawString.lower() or ' m ' in rawString.lower():
                     searchType = 'manga'
+                    searchTypeLetter = 'm'
                     rawString.replace('m/','')
                     rawString.replace(' m ','')
                 data = mal.search(rawString,searchType)
                 if data[0] == 1:
-                    #
                     if len(data[1]) > 1:
                         desc = ''
-                        ref = {'user': message.author.id}
+                        ref = {'user': str(message.author.id)}
                         for i in range(0,len(data[1])):
                             result = data[1][i]
                             desc = f'{desc}{regionalindicators[i]} [{result[1]}][{result[0]}]\n'
-                            ref[regionalindicators[i]] = result[3]
+                            ref[regionalindicators[i]] = f'{searchTypeLetter}/{result[3]}'
                         embed.description = desc
                         sm = await message.channel.send(embed=embed)
-                        for i in rand(0,len(data[1])):
-                            sm.add_reaction(regionalindicators[i])
-                        menus[sm.id] = ref
+                        menus[str(sm.id)] = ref
+                        for i in range(0,len(data[1])):
+                            await sm.add_reaction(regionalindicators[i])
 
-            await message.channel.send(embed=embed)
-        #if cmd.startswith("stickerlist"):
-        #    path1 = os.path.abspath(cfg["absstickerpath"])
-        #    files = []
-        #    for f in os.listdir(path1):
-        #        if os.path.exists:
-        #            files.append(f)
-        #    await message.channel.send(", ".join(files))
-
-        #if cmd.startswith("sticker") and not cmd.startswith("stickerlist"):
-        #    if len(cmd) > 8:
-        #        stickername = concat((cfg["absstickerpath"],cmd.split(" ")[1],".png"))
-        #        try:
-        #            await message.channel.send(file=discord.File(stickername))
-        #        except FileNotFoundError:
-        #            await message.channel.send("That isn't a sticker yet, baaka~")
-        #            print("".join(("Could not find sticker \"",stickername,"\"!")))
-        #    else:
-        #        await message.channel.send("Enter an actual sticker name or I'll explode you!")
-        
         #reactions
         if cmd.startswith("cry"):
             e = discord.Embed(color=0x7af442)
@@ -441,7 +296,7 @@ async def on_message(message):
             e = discord.Embed(color=0x7af442)
             e.set_image(url=reactions["aghast"][random.randint(0,len(reactions["aghast"])-1)])
             await message.channel.send(embed=e)
-        
+
         if cmd.startswith("kick"):
             if message.channel.permissions_for(message.author).kick_members:
                 victims = message.mentions
@@ -498,14 +353,13 @@ async def on_member_unban(guild,user):
 
 @client.event
 async def on_raw_reaction_add(payload):
-    idMessage = payload.message_id
+    idMessage = str(payload.message_id)
     idUser = payload.user_id
-    emoji = payload.emoji
-    if idUser == menus[idMessage]['user']:
-        #
-        if emoji in menus[idmessage]:
-            #
-            print(emoji)
+    emoji = payload.emoji.name
+    if str(idUser) == str(menus[idMessage]['user']):
+        if emoji in menus[idMessage]:
+            embed = discord.Embed(color=0x2e51a2)
+            await client.get_channel(payload.channel_id).send(embed=displayMA(str(menus[idMessage][emoji]),embed))
 
 def concat(array,*args):
     if len(args) < 1:
@@ -522,7 +376,6 @@ def chant():
     embed.description = chants[random.randint(0,len(chants)-1)]
     return embed
 
-#req = req.read().decode('utf-8')
 def fetchBooruPost(postID):
     try:
         data = utils.doGETJSON(concat(("https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",postID)))
@@ -587,6 +440,86 @@ def formatNHentaiComic(comic,imageurls):
         embed.set_footer(text=concat(("Group(s): ",", ".join((groups)))))
     return embed
 
+def displayMA(id,embed):
+    if id.startswith("a/"):
+        data = mal.fetchAnime(id.lstrip("a/"))
+    elif id.startswith("m/"):
+        data = mal.fetchManga(id.lstrip("m/"))
+    else:
+        data = mal.fetchAnime(id)
+        if data.requestStatus != 1:
+            data = mal.fetchManga(id)
+    if data.requestStatus == 1:
+        letter = 'A'
+        if data.contentType == "manga":
+            letter = 'M'
+        if data.titleEnglish and data.malType:
+            embed.title = f'[{letter}/{data.malID}] [{data.malType}] [{data.titleEnglish}]'
+        elif data.titleEnglish:
+            embed.title = f'[{letter}/{data.malID}] [{data.titleEnglish}]'
+        if data.synopsis:
+            if len(data.synopsis) > 600:
+                short = data.synopsis[0:599]
+                embed.description = f'[[url]]({data.pageURL})\n```\n{short}...\n```'
+            else:
+                embed.description = f'[[url]]({data.pageURL})\n```\n{data.synopsis}\n```'
+        if data.thumbURL:
+                embed.set_thumbnail(url=data.thumbURL)
+        if data.genres:
+            name = 'Genre'
+            if len(data.genres) > 0:
+                name = 'Genres'
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.genres),'`')),inline=False)
+        if data.number:
+            if data.contentType == "anime":
+                embed.add_field(name="Episodes",value=data.number,inline=True)
+            elif data.contentType == "manga":
+                embed.add_field(name="Chapters",value=data.number,inline=True)
+        if data.airing != None:
+            if data.airing and data.status:
+                embed.add_field(name="Airing Status",value=data.status,inline=True)
+            elif data.airing:
+                embed.add_field(name="Airing Status",value="Unknown",inline=True)
+            elif data.airing == False:
+                if data.started:
+                    if data.ended:
+                        embed.add_field(name="Airing Status",value=f'Aired {data.started} to {data.ended}',inline=True)
+                    else:
+                        embed.add_field(name="Airing Status",value=f'Started Airing {data.started}',inline=True)
+                else:
+                    embed.add_field(name="Airing Status",value=data.status,inline=True)
+        if data.publishing != None:
+            if data.publishing and data.status:
+                embed.add_field(name="Publishing Status",value=data.status,inline=True)
+            elif data.publishing:
+                embed.add_field(name="Publishing Status",value="Unknown",inline=True)
+            elif data.publishing == False:
+                if data.started:
+                    if data.ended:
+                        embed.add_field(name="Publishing Status",value=f'Published {data.started} to {data.ended}',inline=True)
+                    else:
+                        embed.add_field(name="Publishing Status",value=f'Publishing Started {data.started}',inline=True)
+                else:
+                    embed.add_field(name="Publishing Status",value=data.status,inline=True)
+        if data.origin:
+            embed.add_field(name="Origin",value=data.origin,inline=True)
+        if data.licensors:
+            name = 'Licensor'
+            if len(data.licensors) > 1:
+                name = 'Licensors'
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.licensors),'`')),inline=True)
+        if data.studios:
+            name = 'Studio'
+            if len(data.studios) > 1:
+                name = 'Studios'
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.studios),'`')),inline=True)
+        if data.authors:
+            name = 'Author'
+            if len(data.authors) > 1:
+                name = 'Authors'
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
+        return embed
+
 def ilQuoteArray(input):
     if len(input) > 1:
         return concat(("`","`, `".join(input),"`"))
@@ -594,28 +527,6 @@ def ilQuoteArray(input):
         return concat(("`",input,"`"))
     else:
         return None
-
-#def addSteam(message,msg,steamid,timeout):
-    #timeout = time.time() + timeout
-    #userid = message.author.id
-    #while True:
-        #print("loop!")
-        #if time.time() >= timeout:
-            #return False
-        #time.sleep(1)
-        #print(reactions)
-        #if len(reactions) > 2:
-            #for reaction in reactions:
-                #if reaction.emoji.name == "negative_squared_cross_mark" and reaction.count == 2:
-                    #return False
-                #if reaction.emoji.name == "white_check_mark" and reaction.count == 2:
-                    #with connection.cursor() as cursor:
-                        #cursor.execute(concat(("INSERT INTO tblSteamUser (steamID) VALUES (",steamid,");")))
-                        #cursor.execute(concat(("INSERT INTO tblSUU (userID,steamID) VALUES (",userid,",",steamid,");")))
-                    #connection.commit()
-                    #print("Added!")
-                    #message.channel.send("Your steam ID has been added!")
-                    #return True
 
 def splitTQ(argfull):
     #argfull = rawArguments
@@ -636,19 +547,3 @@ def splitTQ(argfull):
     return [title,questions]
 
 client.run(cfg["bottoken"])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
