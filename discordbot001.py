@@ -240,13 +240,13 @@ async def on_message(message):
             await msg.add_reaction("👍")
             await msg.add_reaction("👎")
 
+########################################################################################################################################################
         if cmd.startswith("mal"):
             subcommand = rawArguments.split(" ")[0]
             embed = discord.Embed(color=0x2e51a2)
             if subcommand == "id":
                 id = rawArguments.split(" ")[1].lower()
-                embed = displayMA(id,embed)
-                await message.channel.send(embed=embed)
+                await message.channel.send(embed=displayMA(id,embed))
             else: #search
                 rawString = ' ' + rawArguments
                 searchType = 'anime'
@@ -359,7 +359,7 @@ async def on_raw_reaction_add(payload):
     if str(idUser) == str(menus[idMessage]['user']):
         if emoji in menus[idMessage]:
             embed = discord.Embed(color=0x2e51a2)
-            await client.get_channel(payload.channel_id).send(embed=displayMA(str(menus[idMessage][emoji]),embed))
+            await client.get_channel(payload.channel_id).send(embed=displayMA(str(menus.pop(idMessage)[emoji]),embed))
 
 def concat(array,*args):
     if len(args) < 1:
@@ -440,6 +440,7 @@ def formatNHentaiComic(comic,imageurls):
         embed.set_footer(text=concat(("Group(s): ",", ".join((groups)))))
     return embed
 
+############################################################################################################################################################################
 def displayMA(id,embed):
     if id.startswith("a/"):
         data = mal.fetchAnime(id.lstrip("a/"))
@@ -453,10 +454,11 @@ def displayMA(id,embed):
         letter = 'A'
         if data.contentType == "manga":
             letter = 'M'
-        if data.titleEnglish and data.malType:
-            embed.title = f'[{letter}/{data.malID}] [{data.malType}] [{data.titleEnglish}]'
-        elif data.titleEnglish:
-            embed.title = f'[{letter}/{data.malID}] [{data.titleEnglish}]'
+        embed.title = f'[{letter}/{data.malID}]'
+        if data.malType:
+            embed.title = f'{embed.title} [{data.malType}]'
+        if data.titleEnglish:
+            embed.title = f'{embed.title} [{data.titleEnglish}]'
         if data.synopsis:
             if len(data.synopsis) > 600:
                 short = data.synopsis[0:599]
