@@ -2,9 +2,5 @@
 *.cfg
 #KDevelop files
 *.kdev4
-#nhentai module
-#get fucked
-nhentai.py
+#py cache
 *.pyc
-#images
-imageSource.json
