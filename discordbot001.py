@@ -442,85 +442,130 @@ def formatNHentaiComic(comic,imageurls):
 
 ############################################################################################################################################################################
 def displayMA(id,embed):
-    if id.startswith("a/"):
-        data = mal.fetchAnime(id.lstrip("a/"))
-    elif id.startswith("m/"):
-        data = mal.fetchManga(id.lstrip("m/"))
+    if id.startswith('a/'):
+        data = mal.fetchAnime(id.lstrip('a/'))
+    elif id.startswith('m/'):
+        data = mal.fetchManga(id.lstrip('m/'))
     else:
         data = mal.fetchAnime(id)
-        if data.requestStatus != 1:
+        if data['request_status']] != 1:
             data = mal.fetchManga(id)
-    if data.requestStatus == 1:
-        letter = 'A'
-        if data.contentType == "manga":
-            letter = 'M'
-        embed.title = f'[{letter}/{data.malID}]'
-        if data.malType:
-            embed.title = f'{embed.title} [{data.malType}]'
-        if data.titleEnglish:
-            embed.title = f'{embed.title} [{data.titleEnglish}]'
-        if data.synopsis:
-            if len(data.synopsis) > 600:
-                short = data.synopsis[0:599]
-                embed.description = f'[[url]]({data.pageURL})\n```\n{short}...\n```'
+    if 'request_status' in data:
+        if 'title_formatted' in data:
+            embed.title = data['title_formatted']
+        if 'synopsis' in data:
+            if len(data['synopsis']) > 600:
+                short = data['synopsis'][0:599]
+                embed.description = f'[[url]]({data['page_url']})\n```\n{short}...\n```'
             else:
-                embed.description = f'[[url]]({data.pageURL})\n```\n{data.synopsis}\n```'
-        if data.thumbURL:
-                embed.set_thumbnail(url=data.thumbURL)
-        if data.genres:
+                embed.description = f'[[url]]({data['page_url']})\n```\n{data['synopsis']}\n```'
+        if 'thumb_url' in data:
+            embed.set_thumbnail(url=data['thumb_url'])
+        if 'genres' in data:
             name = 'Genre'
-            if len(data.genres) > 0:
+            if len(data['genres']) > 1:
                 name = 'Genres'
-            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.genres),'`')),inline=False)
-        if data.number:
-            if data.contentType == "anime":
-                embed.add_field(name="Episodes",value=data.number,inline=True)
-            elif data.contentType == "manga":
-                embed.add_field(name="Chapters",value=data.number,inline=True)
-        if data.airing != None:
-            if data.airing and data.status:
-                embed.add_field(name="Airing Status",value=data.status,inline=True)
-            elif data.airing:
-                embed.add_field(name="Airing Status",value="Unknown",inline=True)
-            elif data.airing == False:
-                if data.started:
-                    if data.ended:
-                        embed.add_field(name="Airing Status",value=f'Aired {data.started} to {data.ended}',inline=True)
-                    else:
-                        embed.add_field(name="Airing Status",value=f'Started Airing {data.started}',inline=True)
-                else:
-                    embed.add_field(name="Airing Status",value=data.status,inline=True)
-        if data.publishing != None:
-            if data.publishing and data.status:
-                embed.add_field(name="Publishing Status",value=data.status,inline=True)
-            elif data.publishing:
-                embed.add_field(name="Publishing Status",value="Unknown",inline=True)
-            elif data.publishing == False:
-                if data.started:
-                    if data.ended:
-                        embed.add_field(name="Publishing Status",value=f'Published {data.started} to {data.ended}',inline=True)
-                    else:
-                        embed.add_field(name="Publishing Status",value=f'Publishing Started {data.started}',inline=True)
-                else:
-                    embed.add_field(name="Publishing Status",value=data.status,inline=True)
-        if data.origin:
-            embed.add_field(name="Origin",value=data.origin,inline=True)
-        if data.licensors:
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data['genres']),'`')),inline=False)
+        if 'episodes' in data:
+            embed.add_field(name='Episodes',value=data['episodes'],inline=True)
+        if 'chapters' in data:
+            embed.add_field(name='Chapters',value=data['chapters'],inline=True)
+        if 'airing_status' in data:
+            embed.add_field(name='Airing Status',value=data['airing_status'],inline=True)
+        if 'publishing_status' in data:
+            embed.add_field(name='Publishing Status',value=data['publishing_status'],inline=True)
+        if 'origin' in data:
+            embed.add_field(name='Origin',value=data['origin'],inline=True)
+        if 'licensors' in data:
             name = 'Licensor'
-            if len(data.licensors) > 1:
+            if len(data['licensors']) > 1:
                 name = 'Licensors'
-            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.licensors),'`')),inline=True)
-        if data.studios:
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data['licensors']),'`')),inline=True)
+        if 'studios' in data:
             name = 'Studio'
-            if len(data.studios) > 1:
+            if len(data['studios']) > 1:
                 name = 'Studios'
-            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.studios),'`')),inline=True)
-        if data.authors:
-            name = 'Author'
-            if len(data.authors) > 1:
-                name = 'Authors'
-            embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
-        return embed
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data['studios']]),'`')),inline=True)
+
+    # if id.startswith("a/"):
+    #     data = mal.fetchAnime(id.lstrip("a/"))
+    # elif id.startswith("m/"):
+    #     data = mal.fetchManga(id.lstrip("m/"))
+    # else:
+    #     data = mal.fetchAnime(id)
+    #     if data.requestStatus != 1:
+    #         data = mal.fetchManga(id)
+    # if data.requestStatus == 1:
+    #     letter = 'A'
+    #     if data.contentType == "manga":
+    #         letter = 'M'
+    #     embed.title = f'[{letter}/{data.malID}]'
+    #     if data.malType:
+    #         embed.title = f'{embed.title} [{data.malType}]'
+    #     if data.titleEnglish:
+    #         embed.title = f'{embed.title} [{data.titleEnglish}]'
+    #     if data.synopsis:
+    #         if len(data.synopsis) > 600:
+    #             short = data.synopsis[0:599]
+    #             embed.description = f'[[url]]({data.pageURL})\n```\n{short}...\n```'
+    #         else:
+    #             embed.description = f'[[url]]({data.pageURL})\n```\n{data.synopsis}\n```'
+    #     if data.thumbURL:
+    #             embed.set_thumbnail(url=data.thumbURL)
+    #     if data.genres:
+    #         name = 'Genre'
+    #         if len(data.genres) > 0:
+    #             name = 'Genres'
+    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.genres),'`')),inline=False)
+    #     if data.number:
+    #         if data.contentType == "anime":
+    #             embed.add_field(name="Episodes",value=data.number,inline=True)
+    #         elif data.contentType == "manga":
+    #             embed.add_field(name="Chapters",value=data.number,inline=True)
+    #     if data.airing != None:
+    #         if data.airing and data.status:
+    #             embed.add_field(name="Airing Status",value=data.status,inline=True)
+    #         elif data.airing:
+    #             embed.add_field(name="Airing Status",value="Unknown",inline=True)
+    #         elif data.airing == False:
+    #             if data.started:
+    #                 if data.ended:
+    #                     embed.add_field(name="Airing Status",value=f'Aired {data.started} to {data.ended}',inline=True)
+    #                 else:
+    #                     embed.add_field(name="Airing Status",value=f'Started Airing {data.started}',inline=True)
+    #             else:
+    #                 embed.add_field(name="Airing Status",value=data.status,inline=True)
+    #     if data.publishing != None:
+    #         if data.publishing and data.status:
+    #             embed.add_field(name="Publishing Status",value=data.status,inline=True)
+    #         elif data.publishing:
+    #             embed.add_field(name="Publishing Status",value="Unknown",inline=True)
+    #         elif data.publishing == False:
+    #             if data.started:
+    #                 if data.ended:
+    #                     embed.add_field(name="Publishing Status",value=f'Published {data.started} to {data.ended}',inline=True)
+    #                 else:
+    #                     embed.add_field(name="Publishing Status",value=f'Publishing Started {data.started}',inline=True)
+    #             else:
+    #                 embed.add_field(name="Publishing Status",value=data.status,inline=True)
+    #     if data.origin:
+    #         embed.add_field(name="Origin",value=data.origin,inline=True)
+    #     if data.licensors:
+    #         name = 'Licensor'
+    #         if len(data.licensors) > 1:
+    #             name = 'Licensors'
+    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.licensors),'`')),inline=True)
+    #     if data.studios:
+    #         name = 'Studio'
+    #         if len(data.studios) > 1:
+    #             name = 'Studios'
+    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.studios),'`')),inline=True)
+    #     if data.authors:
+    #         name = 'Author'
+    #         if len(data.authors) > 1:
+    #             name = 'Authors'
+    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
+    #     return embed
 
 def ilQuoteArray(input):
     if len(input) > 1:
