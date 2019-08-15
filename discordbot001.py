@@ -8,7 +8,7 @@ import Modules.utilfuncs as utils
 import Modules.nhentai as nhentai
 import Modules.strawpoll as strawpoll
 import Modules.reddit as reddit
-import Modules.mal as mal
+import Modules.newmal as mal
 #import Modules.steam as steam
 prefix = ">"
 
@@ -448,17 +448,20 @@ def displayMA(id,embed):
         data = mal.fetchManga(id.lstrip('m/'))
     else:
         data = mal.fetchAnime(id)
-        if data['request_status']] != 1:
+        if int(data['request_status']) != 1:
             data = mal.fetchManga(id)
-    if 'request_status' in data:
+    embed.title = 'fuckin error m8'
+    embed.description = 'get shat on'
+    print(f'[DEBUG] status code = "{data["request_status"]}"')
+    if int(data['request_status']) == 1:
         if 'title_formatted' in data:
             embed.title = data['title_formatted']
         if 'synopsis' in data:
             if len(data['synopsis']) > 600:
                 short = data['synopsis'][0:599]
-                embed.description = f'[[url]]({data['page_url']})\n```\n{short}...\n```'
+                embed.description = f'[[url]]({data["page_url"]})\n```\n{short}...\n```'
             else:
-                embed.description = f'[[url]]({data['page_url']})\n```\n{data['synopsis']}\n```'
+                embed.description = f'[[url]]({data["page_url"]})\n```\n{data["synopsis"]}\n```'
         if 'thumb_url' in data:
             embed.set_thumbnail(url=data['thumb_url'])
         if 'genres' in data:
@@ -485,7 +488,13 @@ def displayMA(id,embed):
             name = 'Studio'
             if len(data['studios']) > 1:
                 name = 'Studios'
-            embed.add_field(name=name,value=''.join(('`','`,`'.join(data['studios']]),'`')),inline=True)
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data['studios']),'`')),inline=True)
+        if 'authors' in data:
+            name = 'Author'
+            if len(data['authors']) > 1:
+                name = 'Authors'
+            embed.add_field(name=name,value=''.join(('`','`,`'.join(data['authors']),'`')),inline=True)
+    return embed
 
     # if id.startswith("a/"):
     #     data = mal.fetchAnime(id.lstrip("a/"))

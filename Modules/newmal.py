@@ -39,9 +39,9 @@ def RLRequest(url):
     lastRequest = datetime.datetime.utcnow().timestamp()
     return response
 
-def fetchAnime(id,embed):
+def fetchAnime(id):
     response = RLRequest(f'{api}/anime/{id}')
-    result = malResult('anime',id)
+    print(f'[DEBUG] id = "{id}"')
 
     if response.status_code == 200:
         data = response.json()
@@ -54,28 +54,28 @@ def fetchAnime(id,embed):
         elif 'title_ja' in result:
             title = result['title_ja']
         if 'type_mal' in result and title != None:
-            result['title_formatted'] = f'[A/{id}][{result['type_mal']}][{title}]'
+            result['title_formatted'] = f'[A/{id}][{result["type_mal"]}][{title}]'
         if "airing" in data:
             result['airing'] = data["airing"]
             if data["airing"] and result['status']:
-                final['airing_status'] = result['status']
+                result['airing_status'] = result['status']
                 aStatus = True
             elif data["airing"]:
-                final['airing_status'] = 'unknown'
+                result['airing_status'] = 'unknown'
                 aStatus = True
         if "aired" in data:
             if "from" in data["aired"]:
-                final['started'] = data["aired"]["from"].split("T")[0]
+                result['started'] = data["aired"]["from"].split("T")[0]
             if "to" in data["aired"]:
-                final['ended'] = data["aired"]["to"].split("T")[0]
+                result['ended'] = data["aired"]["to"].split("T")[0]
             if aStatus == False and data["airing"] == False:
                 if result['started']:
                     if result['ended']:
-                        final['airing_status'] = f'Aired {data['started']} to {data['ended']}'
+                        result['airing_status'] = f'Aired {result["started"]} to {result["ended"]}'
                     else:
-                        final['airing_status'] = f'Started Airing {data['started']}'
+                        result['airing_status'] = f'Started Airing {result["started"]}'
                 else:
-                    final['airing_status'] = data['status']
+                    result['airing_status'] = data['status']
         if 'licensors' in data:
             result['licensors'] = []
             for licensor in data['licensors']:
@@ -88,6 +88,7 @@ def fetchAnime(id,embed):
             result['origin'] = data['source']
     else:
         result['request_status'] = _responseParse(response)
+    return result
 
 def _responseParse(response):
     if response.status_code == 400: #invalid request
