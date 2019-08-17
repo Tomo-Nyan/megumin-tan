@@ -4,28 +4,6 @@ from time import sleep
 api = 'https://api.jikan.moe/v3'
 lastRequest = datetime.datetime.utcnow().timestamp()
 
-class _malResult:
-    def __init__(self,type,id):
-        self.malID = id
-        self.contentType = type
-        self.thumbURL = None
-        self.pageURL = None
-        self.titleEnglish = None
-        self.titleJapanese = None
-        self.malType = None
-        self.number = None
-        self.status = None
-        self.synopsis = None
-        self.genres = None
-
-class finalMalResult:
-    def __init__(self):
-        self.embedTitle = None
-        self.embedDescription = None
-        self.embedURL = None
-        self.embedFooter = None
-        self.fields = None
-
 def RLRequest(url):
     global lastRequest
     while lastRequest == 0:
