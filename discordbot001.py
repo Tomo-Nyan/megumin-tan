@@ -8,7 +8,7 @@ import Modules.utilfuncs as utils
 import Modules.nhentai as nhentai
 import Modules.strawpoll as strawpoll
 import Modules.reddit as reddit
-import Modules.newmal as mal
+import Modules.mal as mal
 #import Modules.steam as steam
 prefix = ">"
 
@@ -262,13 +262,11 @@ async def on_message(message):
                     rawString.replace('m/','')
                     rawString.replace(' m ','')
                 data = mal.search(rawString,searchType)
-                print(f'data 0 = {data[0]}')
                 if data[0] == 1:
                     if len(data[1]) > 1:
                         desc = ''
                         ref = {'user': str(message.author.id)}
                         r = len(data[1])
-                        print(f'[DEBUG] results n = {r}')
                         if r > 4:
                             r = 4
                         for i in range(0,r):
