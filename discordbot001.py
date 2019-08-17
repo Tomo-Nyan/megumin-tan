@@ -241,12 +241,17 @@ async def on_message(message):
             await msg.add_reaction("👎")
 
 ########################################################################################################################################################
-        if cmd.startswith("mal"):
+        if cmd.startswith('malqa'):
+            await message.channel.send(embed=displayMA('a/' + str(mal.search(' ' + rawArguments,'anime')[1][0][3]),discord.Embed(color=0x2e51a2)))
+        if cmd.startswith('malqm'):
+            await message.channel.send(embed=displayMA('m/' + str(mal.search(' ' + rawArguments,'manga')[1][0][3]),discord.Embed(color=0x2e51a2)))
+        if cmd.startswith("mal "):
             subcommand = rawArguments.split(" ")[0]
             embed = discord.Embed(color=0x2e51a2)
             if subcommand == "id":
                 id = rawArguments.split(" ")[1].lower()
                 await message.channel.send(embed=displayMA(id,embed))
+                await message.delete()
             else: #search
                 rawString = ' ' + rawArguments
                 searchType = 'anime'
@@ -257,19 +262,36 @@ async def on_message(message):
                     rawString.replace('m/','')
                     rawString.replace(' m ','')
                 data = mal.search(rawString,searchType)
+                print(f'data 0 = {data[0]}')
                 if data[0] == 1:
                     if len(data[1]) > 1:
                         desc = ''
                         ref = {'user': str(message.author.id)}
-                        for i in range(0,len(data[1])):
+                        r = len(data[1])
+                        print(f'[DEBUG] results n = {r}')
+                        if r > 4:
+                            r = 4
+                        for i in range(0,r):
                             result = data[1][i]
                             desc = f'{desc}{regionalindicators[i]} [{result[1]}][{result[0]}]\n'
                             ref[regionalindicators[i]] = f'{searchTypeLetter}/{result[3]}'
                         embed.description = desc
                         sm = await message.channel.send(embed=embed)
                         menus[str(sm.id)] = ref
-                        for i in range(0,len(data[1])):
+                        for i in range(0,r):
                             await sm.add_reaction(regionalindicators[i])
+                        await sm.delete(delay=30)
+                        await message.delete()
+                elif data[0] != 1:
+                    if data[0] == 'NR':
+                        embed.title = 'Error!'
+                        embed.color = 0xff0000
+                        embed.description = f'Sorry, there are no results for "{rawString}"! (code `ID` `10` `T`)'
+                    else:
+                        embed.title = 'Fatal Error!'
+                        embed.color = 0xff0000
+                        embed.description = f'Sorry, there has been a serious error! (code `{data[0]}`)'
+                    await message.channel.send(embed=embed)
 
         #reactions
         if cmd.startswith("cry"):
@@ -354,12 +376,21 @@ async def on_member_unban(guild,user):
 @client.event
 async def on_raw_reaction_add(payload):
     idMessage = str(payload.message_id)
+    idChannel = payload.channel_id
     idUser = payload.user_id
     emoji = payload.emoji.name
     if str(idUser) == str(menus[idMessage]['user']):
         if emoji in menus[idMessage]:
             embed = discord.Embed(color=0x2e51a2)
-            await client.get_channel(payload.channel_id).send(embed=displayMA(str(menus.pop(idMessage)[emoji]),embed))
+            channel = client.get_channel(idChannel)
+            await channel.send(embed=displayMA(str(menus.pop(idMessage)[emoji]),embed))
+            message = await channel.fetch_message(idMessage)
+            await message.delete()
+
+@client.event
+async def on_raw_message_delete(payload):
+    if payload.message_id in menus:
+        menus.pop(idMessage)
 
 def concat(array,*args):
     if len(args) < 1:
@@ -442,6 +473,7 @@ def formatNHentaiComic(comic,imageurls):
 
 ############################################################################################################################################################################
 def displayMA(id,embed):
+    print(f'id = "{id}"')
     if id.startswith('a/'):
         data = mal.fetchAnime(id.lstrip('a/'))
     elif id.startswith('m/'):
@@ -453,7 +485,7 @@ def displayMA(id,embed):
     embed.title = 'fuckin error m8'
     embed.description = 'get shat on'
     print(f'[DEBUG] status code = "{data["request_status"]}"')
-    if int(data['request_status']) == 1:
+    if data['request_status'] == 1:
         if 'title_formatted' in data:
             embed.title = data['title_formatted']
         if 'synopsis' in data:
@@ -494,87 +526,15 @@ def displayMA(id,embed):
             if len(data['authors']) > 1:
                 name = 'Authors'
             embed.add_field(name=name,value=''.join(('`','`,`'.join(data['authors']),'`')),inline=True)
+    elif data['request_status'] == 4:
+        embed.title = 'Error!'
+        embed.color = 0xff0000
+        embed.description = 'Sorry, that can\'t be found!'
+    else:
+        embed.title = 'Fatal Error!'
+        embed.color = 0xff0000
+        embed.description = f'Sorry, there has been a serious error! (code `{data["request_status"]}`)'
     return embed
-
-    # if id.startswith("a/"):
-    #     data = mal.fetchAnime(id.lstrip("a/"))
-    # elif id.startswith("m/"):
-    #     data = mal.fetchManga(id.lstrip("m/"))
-    # else:
-    #     data = mal.fetchAnime(id)
-    #     if data.requestStatus != 1:
-    #         data = mal.fetchManga(id)
-    # if data.requestStatus == 1:
-    #     letter = 'A'
-    #     if data.contentType == "manga":
-    #         letter = 'M'
-    #     embed.title = f'[{letter}/{data.malID}]'
-    #     if data.malType:
-    #         embed.title = f'{embed.title} [{data.malType}]'
-    #     if data.titleEnglish:
-    #         embed.title = f'{embed.title} [{data.titleEnglish}]'
-    #     if data.synopsis:
-    #         if len(data.synopsis) > 600:
-    #             short = data.synopsis[0:599]
-    #             embed.description = f'[[url]]({data.pageURL})\n```\n{short}...\n```'
-    #         else:
-    #             embed.description = f'[[url]]({data.pageURL})\n```\n{data.synopsis}\n```'
-    #     if data.thumbURL:
-    #             embed.set_thumbnail(url=data.thumbURL)
-    #     if data.genres:
-    #         name = 'Genre'
-    #         if len(data.genres) > 0:
-    #             name = 'Genres'
-    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.genres),'`')),inline=False)
-    #     if data.number:
-    #         if data.contentType == "anime":
-    #             embed.add_field(name="Episodes",value=data.number,inline=True)
-    #         elif data.contentType == "manga":
-    #             embed.add_field(name="Chapters",value=data.number,inline=True)
-    #     if data.airing != None:
-    #         if data.airing and data.status:
-    #             embed.add_field(name="Airing Status",value=data.status,inline=True)
-    #         elif data.airing:
-    #             embed.add_field(name="Airing Status",value="Unknown",inline=True)
-    #         elif data.airing == False:
-    #             if data.started:
-    #                 if data.ended:
-    #                     embed.add_field(name="Airing Status",value=f'Aired {data.started} to {data.ended}',inline=True)
-    #                 else:
-    #                     embed.add_field(name="Airing Status",value=f'Started Airing {data.started}',inline=True)
-    #             else:
-    #                 embed.add_field(name="Airing Status",value=data.status,inline=True)
-    #     if data.publishing != None:
-    #         if data.publishing and data.status:
-    #             embed.add_field(name="Publishing Status",value=data.status,inline=True)
-    #         elif data.publishing:
-    #             embed.add_field(name="Publishing Status",value="Unknown",inline=True)
-    #         elif data.publishing == False:
-    #             if data.started:
-    #                 if data.ended:
-    #                     embed.add_field(name="Publishing Status",value=f'Published {data.started} to {data.ended}',inline=True)
-    #                 else:
-    #                     embed.add_field(name="Publishing Status",value=f'Publishing Started {data.started}',inline=True)
-    #             else:
-    #                 embed.add_field(name="Publishing Status",value=data.status,inline=True)
-    #     if data.origin:
-    #         embed.add_field(name="Origin",value=data.origin,inline=True)
-    #     if data.licensors:
-    #         name = 'Licensor'
-    #         if len(data.licensors) > 1:
-    #             name = 'Licensors'
-    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.licensors),'`')),inline=True)
-    #     if data.studios:
-    #         name = 'Studio'
-    #         if len(data.studios) > 1:
-    #             name = 'Studios'
-    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.studios),'`')),inline=True)
-    #     if data.authors:
-    #         name = 'Author'
-    #         if len(data.authors) > 1:
-    #             name = 'Authors'
-    #         embed.add_field(name=name,value=''.join(('`','`,`'.join(data.authors),'`')))
-    #     return embed
 
 def ilQuoteArray(input):
     if len(input) > 1:
