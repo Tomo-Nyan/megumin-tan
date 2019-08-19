@@ -240,7 +240,6 @@ async def on_message(message):
             await msg.add_reaction("👍")
             await msg.add_reaction("👎")
 
-########################################################################################################################################################
         if cmd.startswith('malqa'):
             await message.channel.send(embed=displayMA('a/' + str(mal.search(' ' + rawArguments,'anime')[1][0][3]),discord.Embed(color=0x2e51a2)))
         if cmd.startswith('malqm'):
@@ -256,11 +255,11 @@ async def on_message(message):
                 rawString = ' ' + rawArguments
                 searchType = 'anime'
                 searchTypeLetter = 'a'
+                rawString.replace('a/','')
                 if 'm/' in rawString.lower() or ' m ' in rawString.lower():
                     searchType = 'manga'
                     searchTypeLetter = 'm'
                     rawString.replace('m/','')
-                    rawString.replace(' m ','')
                 data = mal.search(rawString,searchType)
                 if data[0] == 1:
                     if len(data[1]) > 1:
@@ -469,9 +468,7 @@ def formatNHentaiComic(comic,imageurls):
         embed.set_footer(text=concat(("Group(s): ",", ".join((groups)))))
     return embed
 
-############################################################################################################################################################################
 def displayMA(id,embed):
-    print(f'id = "{id}"')
     if id.startswith('a/'):
         data = mal.fetchAnime(id.lstrip('a/'))
     elif id.startswith('m/'):
@@ -482,7 +479,6 @@ def displayMA(id,embed):
             data = mal.fetchManga(id)
     embed.title = 'fuckin error m8'
     embed.description = 'get shat on'
-    print(f'[DEBUG] status code = "{data["request_status"]}"')
     if data['request_status'] == 1:
         if 'title_formatted' in data:
             embed.title = data['title_formatted']

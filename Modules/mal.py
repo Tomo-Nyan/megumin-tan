@@ -48,10 +48,16 @@ def fetchAnime(id):
                     result['ended'] = data['aired']['to'].split('T')[0]
             if aStatus == False and data['airing'] == False:
                 if 'started' in result:
-                    if 'ended' in result:
-                        result['airing_status'] = f'Aired {result["started"]} to {result["ended"]}'
+                    if result['started']:
+                        if 'ended' in result:
+                            if result['ended']:
+                                result['airing_status'] = f'Aired {result["started"]} to {result["ended"]}'
+                            else:
+                                result['airing_status'] = f'Started Airing {result["started"]}'
+                        else:
+                            result['airing_status'] = f'Started Airing {result["started"]}'
                     else:
-                        result['airing_status'] = f'Started Airing {result["started"]}'
+                        result['airing_status'] = data['status']
                 else:
                     result['airing_status'] = data['status']
         if 'licensors' in data:
@@ -116,11 +122,17 @@ def fetchManga(id):
                 if data['published']['to']:
                     result['ended'] = data['published']['to'].split('T')[0]
             if pStatus == False and data['publishing'] == False:
-                if result['started']:
-                    if result['ended']:
-                        result['publishing_status'] = f'Published {result["started"]} to {result["ended"]}'
+                if 'started' in result:
+                    if result['started']:
+                        if 'ended' in result:
+                            if result['ended']:
+                                result['publishing_status'] = f'Published {result["started"]} to {result["ended"]}'
+                            else:
+                                result['publishing_status'] = f'Started Publishing {result["started"]}'
+                        else:
+                            result['publishing_status'] = f'Started Publishing {result["started"]}'
                     else:
-                        result['publishing_status'] = f'Started Publishing {result["started"]}'
+                        result['publishing_status'] = data['status']
                 else:
                     result['publishing_status'] = data['status']
         if 'authors' in data:
