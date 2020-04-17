@@ -22,7 +22,7 @@ reactions = utils.load("json/imageSource.json")
 #instances
 client = discord.Client()
 menus = {}
-#connection = pymysql.connect(host='localhost',user=cfg["dbUsername"],password=cfg["dbPassword"],db=cfg["dbName"],charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
+connection = pymysql.connect(host='localhost',user=cfg["dbUsername"],password=cfg["dbPassword"],db=cfg["dbName"],charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
 
 #Discord Events
 @client.event
@@ -40,6 +40,12 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+
+    #get guild settings
+    guildSettings = {}
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT disableRandom,disableGreetings FROM tblGuilds WHERE serverID=' + str(message.guild.id) + ';')
+        guildSettings = cursor.fetchone()
 
     if message.content.startswith(prefix):
         cmd = message.content.lstrip(prefix)
@@ -328,6 +334,7 @@ async def on_message(message):
                         await message.channel.send(concat(("Failed to kick",victim.name)))
             else:
                 await message.channel.send("You have insufficient permissions.")
+
     mm = False
     if len(message.mentions) > 0:
         for mention in message.mentions:
