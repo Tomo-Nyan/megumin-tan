@@ -46,7 +46,7 @@ async def on_message(message):
     with connection.cursor() as cursor:
         if cursor.execute('SELECT disableRandom,disableGreetings FROM tblGuilds WHERE serverID=' + str(message.guild.id) + ';'):
             guildSettings = cursor.fetchone()
-        if guildSettings['disableGreetings'] = 0:
+        if guildSettings['disableGreetings'] == 0:
             if cursor.execute('SELECT channelGreet FROM tblGuildSettings WHERE serverID=' + str(message.guild.id) + ';'):
                 guildSettings.update(cursor.fetchone())
 
@@ -357,17 +357,25 @@ async def on_message(message):
 
 @client.event
 async def on_member_join(member):
-    print(concat((member.name," has joined guild ",member.guild.name,"!")))
-    for channel in member.guild.text_channels:
-        if "general" in channel.name:
-            await channel.send(concat(("Welcome to ",member.guild.name,", ",member.mention,"!")))
+    if guildSettings['disableGreetings'] == 0:
+        if guildSettings['channelGreet'] != None and guildSettings['channelGreet'] != '':
+            print(concat((member.name," has joined guild ",member.guild.name,"!")))
+            member.guild.get_channel(guildSettings['channelGreet']).send(concat(("Welcome to ",member.guild.name,", ",member.mention,"!")))
+        else:
+            for channel in member.guild.text_channels:
+                if "general" in channel.name:
+                    await channel.send(concat(("Welcome to ",member.guild.name,", ",member.mention,"!")))
 
 @client.event
 async def on_member_remove(member):
-    print(concat((member.name," has left guild ",member.guild.name,"!")))
-    for channel in member.guild.text_channels:
-        if "general" in channel.name:
-            await channel.send(concat(("Goodbye, ",member.name,"!")))
+    if guildSettings['disableGreetings'] == 0:
+        if guildSettings['channelGreet'] != None and guildSettings['channelGreet'] != '':
+            print(concat((member.name," has left guild ",member.guild.name,"!")))
+            member.guild.get_channel(guildSettings['channelGreet']).send(concat(("Goodbye, ",member.name,"!")))
+        else:
+            for channel in member.guild.text_channels:
+                if "general" in channel.name:
+                    await channel.send(concat(("Goodbye, ",member.name,"!")))
 
 @client.event
 async def on_member_ban(guild,user):
