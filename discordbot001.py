@@ -44,8 +44,12 @@ async def on_message(message):
     #get guild settings
     guildSettings = {}
     with connection.cursor() as cursor:
-        cursor.execute('SELECT disableRandom,disableGreetings FROM tblGuilds WHERE serverID=' + str(message.guild.id) + ';')
-        guildSettings = cursor.fetchone()
+        if cursor.execute('SELECT disableRandom,disableGreetings FROM tblGuilds WHERE serverID=' + str(message.guild.id) + ';'):
+            guildSettings = cursor.fetchone()
+        if guildSettings['disableGreetings'] = 0:
+            if cursor.execute('SELECT channelGreet FROM tblGuildSettings WHERE serverID=' + str(message.guild.id) + ';'):
+                guildSettings.update(cursor.fetchone())
+
 
     if message.content.startswith(prefix):
         cmd = message.content.lstrip(prefix)
