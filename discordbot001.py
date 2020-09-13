@@ -333,16 +333,16 @@ async def on_message(message):
         for mention in message.mentions:
             if mention.id == client.user.id:
                 mm = True
-    if not message.author.bot:
-        if "megumin" in message.content.lower() or mm:
-            if "loli" in message.content.lower():
-                await message.channel.send("Who are you calling a loli?")
-            else:
-                await message.channel.send("Hello, I am megumin.")
-        if "flat" in message.content.lower():
-            await message.channel.send("flat is justice!")
-        if "explosion" in message.content.lower():
-            await message.channel.send(embed=chant())
+#    if not message.author.bot:
+#        if "megumin" in message.content.lower() or mm:
+#            if "loli" in message.content.lower():
+#                await message.channel.send("Who are you calling a loli?")
+#            else:
+#                await message.channel.send("Hello, I am megumin.")
+#        if "flat" in message.content.lower():
+#            await message.channel.send("flat is justice!")
+#        if "explosion" in message.content.lower():
+#            await message.channel.send(embed=chant())
 
 @client.event
 async def on_member_join(member):
